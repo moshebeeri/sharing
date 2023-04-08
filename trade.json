@@ -1,0 +1,14 @@
+{
+  "Trade": {
+    "CID": "985723485238",
+    "AssetCurrencyId": "USD",
+    "UnderlyingSide": "Buy",
+    "id": "748923486",
+    "Units": 50,
+    "AssetPrice": 123.331,
+    "ExecutionTime": "2023-02-27T20:44:48Z"
+  },
+  "Asset": {
+    "UnderlyingInstrumentId": "329482" //should map to GOOG
+  }
+}

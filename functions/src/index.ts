@@ -1,4 +1,5 @@
 import * as functions from "firebase-functions";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 // // Start writing functions
 // // https://firebase.google.com/docs/functions/typescript

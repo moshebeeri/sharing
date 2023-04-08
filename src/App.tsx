@@ -1,58 +1,46 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
+
+import React, { useContext } from "react";
+import { Button, Col, Row, Container, Form, Navbar } from "react-bootstrap";
+import EventsViewer from "./components/EventsViewer";
+import ScheduleResource from "./components/ScheduleResource";
+import { AuthContext } from "./context/AuthContext";
+import Layout from "./Layout";
+
+import { Route, BrowserRouter } from 'react-router-dom';
+import { Routes } from 'react-router';
+// import Home from "./components/Home";
+// import Login from "./components/Login";
+// import Logout from "./components/Logout";
+// import Resource from "./components/Resource";
+// import Events from "./components/Events";
+// import Scheduler from "./components/Scheduler"
+
+function App_Orig() {
+  const user = useContext(AuthContext);
+
+  return (
+    <>
+      <Layout children={<EventsViewer/>}/>
+    </>
+  );
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout children={<Layout children={<EventsViewer/>}/>}/>} />
+        <Route path="/login" element={<Layout children={<EventsViewer/>}/>} />
+        <Route path="/logout" element={<Layout children={<EventsViewer/>}/>} />
+        <Route path="/resource" element={<Layout children={<EventsViewer/>}/>} />
+        <Route path="/events" element={<Layout children={<EventsViewer/>}/>} />
+        <Route path="/scheduler" element={<Layout children={<EventsViewer/>}/>} />
+      </Routes>
+    </BrowserRouter>
+
   );
 }
+
+
 
 export default App;
