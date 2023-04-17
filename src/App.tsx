@@ -1,9 +1,6 @@
 
-import React, { useContext } from "react";
-import { Button, Col, Row, Container, Form, Navbar } from "react-bootstrap";
+import React from "react";
 import EventsViewer from "./components/EventsViewer";
-import ScheduleResource from "./components/ScheduleResource";
-import { AuthContext } from "./context/AuthContext";
 import Layout from "./Layout";
 
 import { Route, BrowserRouter } from 'react-router-dom';
@@ -16,16 +13,6 @@ import Login from "./components/Login";
 // import Resource from "./components/Resource";
 // import Events from "./components/Events";
 // import Scheduler from "./components/Scheduler"
-
-function App_Orig() {
-  const user = useContext(AuthContext);
-
-  return (
-    <>
-      <Layout children={<EventsViewer/>}/>
-    </>
-  );
-}
 
 function App() {
   return (

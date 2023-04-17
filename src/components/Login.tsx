@@ -1,11 +1,10 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Button, Col, Row, Container, Form, Navbar, Alert } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { AuthContext } from "../context/AuthContext";
 
 function Login() {
-  const user = useContext(AuthContext);
+  //const user = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");

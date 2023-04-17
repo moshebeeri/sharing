@@ -4,7 +4,7 @@ import { Button, Col, Row, Container, Form, Navbar } from "react-bootstrap";
 import { AuthContext } from "./context/AuthContext";
 
 function Login() {
-  const user = useContext(AuthContext);
+  //const user = useContext(AuthContext);
 
   return (
     <>
