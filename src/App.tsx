@@ -6,6 +6,7 @@ import Layout from "./Layout";
 import { Route, BrowserRouter } from 'react-router-dom';
 import { Routes } from 'react-router';
 import Login from "./components/Login";
+import ScheduleView from "./components/ScheduleView";
 
 // import Home from "./components/Home";
 // import Login from "./components/Login";
@@ -20,6 +21,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout children={<EventsViewer />} />} />
         <Route path="/login" element={<Layout children={<Login />} />} />
+        <Route path="/schedule" element={<Layout children={<ScheduleView />} />} />
         {/*
         <Route path="/logout" element={<Layout children={<EventsViewer/>}/>} />
         <Route path="/resource" element={<Layout children={<EventsViewer/>}/>} />

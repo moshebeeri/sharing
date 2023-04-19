@@ -22,7 +22,7 @@ interface LayoutProps {
 }
 
 const pages = [
-  { name: 'Schedule', href: '/' },
+  { name: 'Schedule', href: '/schedule' },
   { name: 'Activities', href: '/' },
   { name: 'Resource', href: '/' }
 ];
