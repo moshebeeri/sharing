@@ -1,4 +1,4 @@
-import { firebase } from "./config/firebase";
+import { firebaseApp } from "./config/firebase";
 import React, { useState, useEffect, ReactNode } from 'react';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import AppBar from '@mui/material/AppBar';
@@ -15,7 +15,7 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 
-export const auth = getAuth(firebase)
+export const auth = getAuth(firebaseApp)
 
 interface LayoutProps {
   children: ReactNode;

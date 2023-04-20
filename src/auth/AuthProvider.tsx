@@ -15,9 +15,9 @@ import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
 } from 'firebase/auth'
-import { firebase } from '../config/firebase'
+import { firebaseApp } from '../config/firebase'
 
-export const auth = getAuth(firebase)
+export const auth = getAuth(firebaseApp)
 
 export interface AuthProviderProps {
   children?: ReactNode
