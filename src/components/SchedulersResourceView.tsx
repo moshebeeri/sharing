@@ -4,7 +4,7 @@ import { Scheduler, useScheduler } from "@aldabil/react-scheduler";
 import { RESOURCES, EVENTS } from "./data";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 
-function ResourcesView() {
+function SchedulersResourceView() {
   const { resourceViewMode, setResourceViewMode } = useScheduler();
 
   return (
@@ -84,4 +84,4 @@ function ResourcesView() {
   );
 }
 
-export default ResourcesView;
+export default SchedulersResourceView;

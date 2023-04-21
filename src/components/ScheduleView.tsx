@@ -9,7 +9,7 @@ const ScheduleView = () => {
 
   return (
     <div>
-      <h2>Upcoming Events</h2>
+      <h4>Upcoming Events</h4>
       <Schedule events={EVENTS} />
     </div>
   );

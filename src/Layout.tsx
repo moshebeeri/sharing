@@ -24,7 +24,7 @@ interface LayoutProps {
 const pages = [
   { name: 'Schedule', href: '/schedule' },
   { name: 'Activities', href: '/' },
-  { name: 'Resource', href: '/' }
+  { name: 'Resources', href: '/resources' }
 ];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
