@@ -1,5 +1,5 @@
-import React, { ChangeEvent, FormEvent, useState } from "react";
-import { Form, Button, FloatingLabel, ToggleButton, ToggleButtonGroup, Container } from "react-bootstrap";
+import React, { ChangeEvent, FormEvent, useState, useRef } from "react";
+import { Form, Button, FloatingLabel, ToggleButton, ToggleButtonGroup } from "react-bootstrap";
 import { collection, doc, setDoc, deleteDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getFirestore } from '@firebase/firestore';
@@ -7,8 +7,19 @@ import { getStorage } from "firebase/storage";
 import { firebaseApp } from '../../config/firebase';
 import { Typography } from "@mui/material";
 import { blue } from "@mui/material/colors";
-import { Box } from "@mui/system";
+import { Box, padding } from "@mui/system";
 import { getAuth } from "firebase/auth";
+import {
+  Container,
+  TextField,
+  //Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  IconButton,
+} from "@mui/material";
+import { CheckBox, CheckBoxOutlineBlank, Delete } from "@mui/icons-material";
 
 const db = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
@@ -35,8 +46,10 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
   const [price, setPrice] = useState(resource?.price || 0);
   const [availability, setAvailability] = useState(resource?.availability || "");
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [selectedImages, setSelectedImages] = useState<{ file: File; url: string }[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>(resource?.images || []);
   const [primaryImageIndex, setPrimaryImageIndex] = useState(resource?.primaryImageIndex || 0);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFormSubmit = async (e: FormEvent) => {
     console.log("handleFormSubmit");
@@ -51,10 +64,10 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
       ? doc(db, "resources", resource.id)
       : doc(collection(db, "resources"));
     const newImageUrls = await Promise.all(
-      imageFiles.map(async (imageFile, index) => {
+      selectedImages.map(async (selectedImage, index) => {
         const imagePath = `resources/${resourceRef.id}/${index}`;
         const imageRef = ref(storage, imagePath);
-        await uploadBytes(imageRef, imageFile);
+        await uploadBytes(imageRef, selectedImage.file);
         return await getDownloadURL(imageRef);
       })
     );
@@ -71,6 +84,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
     onSubmit();
   };
 
+
   const handleDelete = async () => {
     if (!resource) return;
 
@@ -78,14 +92,44 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
     onSubmit();
   };
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
+  const handleImageSelect = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
 
-    const newImageFiles = [...imageFiles];
-    newImageFiles[index] = e.target.files[0];
-    setImageFiles(newImageFiles);
+    const newSelectedImages = Array.from(e.target.files)
+      .filter((file) => !file.name.startsWith("."))
+      .map((file) => ({
+        file,
+        url: URL.createObjectURL(file),
+      }))
+      .filter(
+        (newImage) =>
+          !selectedImages.some((selectedImage) => selectedImage.file.name === newImage.file.name)
+      );
+
+    const combinedImages = [...selectedImages, ...newSelectedImages];
+
+    const totalSize = combinedImages.reduce((acc, image) => acc + image.file.size, 0);
+
+    if (totalSize > 200 * 1024 * 1024) {
+      alert("The total size of the selected images exceeds 200 MB.");
+      return;
+    }
+
+    setSelectedImages(combinedImages);
+
+    // Reset the input value
+    e.target.value = "";
   };
 
+
+  const handleRemoveImage = (index: number) => {
+    setSelectedImages((prevImages) => prevImages.filter((_, i) => i !== index));
+
+    // Reset the input value
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+  };
   const handlePrimaryImage = (value: number) => {
     console.log("handlePrimaryImage", value);
     setPrimaryImageIndex(value);
@@ -134,52 +178,45 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
         />
       </Form.Group>
 
-      <Form.Group className="mb-3" controlId="availability">
-        <Form.Label>Availability</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="Enter availability"
-          value={availability}
-          onChange={(e) => setAvailability(e.target.value)}
-          required
-        />
-      </Form.Group>
-
       <Form.Group className="mb-3">
-        <Form.Label>Images</Form.Label>
-        {Array.from({ length: 2 }).map((_, index) => (
-          <div key={index} className="mb-2">
-            <Form.Label htmlFor={`image-${index}`} className="me-2">
-              Image {index + 1}:
-            </Form.Label>
-            {imageUrls[index] && (
-              <img src={imageUrls[index]} alt={`Image ${index + 1}`} width="50" height="50" className="me-2" />
-            )}
-            <Form.Control
-              id={`image-${index}`}
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleImageChange(e as React.ChangeEvent<HTMLInputElement>, index)}
-            />
-          </div>
-        ))}
-      </Form.Group>
-
-      <Form.Group className="mb-3">
-        <Form.Label>Primary Image</Form.Label>
-        <ToggleButtonGroup
-          type="radio"
-          name="primaryImage"
-          value={primaryImageIndex}
-          onChange={handlePrimaryImage}
-        >
-          {Array.from({ length: 2 }).map((_, index) => (
-            <ToggleButton key={index} value={index} onClick={() => setPrimaryImageIndex(index)}>
-              {index + 1}
-            </ToggleButton>
+          <Form.Label>Images</Form.Label>
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleImageSelect}
+            {...({ webkitdirectory: "true", directory: "true" } as any)}
+            style={{ display: "block" }}
+          />
+          {selectedImages.map((image, index) => (
+            <div key={index} className="mb-2" style={{ position: "relative", display: "inline-block" }}>
+              <img
+                src={image.url}
+                alt={`Image ${index + 1}`}
+                width="200"
+                height="200"
+                className="me-2"
+                style={{ objectFit: "cover" }}
+              />
+              <IconButton
+                size="small"
+                color="success"
+                style={{ position: "absolute", top: 0, left: 0 }}
+                onClick={() => handlePrimaryImage(index)}
+              >
+                {primaryImageIndex === index ? <CheckBox fontSize="small" /> : <CheckBoxOutlineBlank fontSize="small" />}
+              </IconButton>
+              <IconButton
+                size="small"
+                color="info"
+                style={{ position: "absolute", top: 0, right: 0, padding:"10px"}}
+                onClick={() => handleRemoveImage(index)}
+              >
+                <Delete fontSize="small" />
+              </IconButton>
+            </div>
           ))}
-          </ToggleButtonGroup>
-      </Form.Group>
+        </Form.Group>
 
       <Button variant="primary" type="submit">
         {resource ? "Update" : "Add"} Resource
