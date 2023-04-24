@@ -1,5 +1,5 @@
 import React, { ChangeEvent, FormEvent, useState, useRef } from "react";
-import { Form, Button, FloatingLabel, ToggleButton, ToggleButtonGroup } from "react-bootstrap";
+import { Form, Button } from "react-bootstrap";
 import { collection, doc, setDoc, deleteDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getFirestore } from '@firebase/firestore';
@@ -7,16 +7,10 @@ import { getStorage } from "firebase/storage";
 import { firebaseApp } from '../../config/firebase';
 import { Typography } from "@mui/material";
 import { blue } from "@mui/material/colors";
-import { Box, padding } from "@mui/system";
+import { Box } from "@mui/system";
 import { getAuth } from "firebase/auth";
 import {
   Container,
-  TextField,
-  //Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   IconButton,
 } from "@mui/material";
 import { CheckBox, CheckBoxOutlineBlank, Delete } from "@mui/icons-material";

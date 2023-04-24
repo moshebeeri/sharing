@@ -4,7 +4,6 @@ import ResourcesList, { ResourceType } from "./ResourcesList";
 import ResourceForm from "./ResourceForm";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { firebaseApp } from '../../config/firebase';
-import { getStorage } from "firebase/storage";
 import { getFirestore } from '@firebase/firestore';
 
 

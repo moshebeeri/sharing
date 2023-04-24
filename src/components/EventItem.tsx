@@ -12,13 +12,6 @@ const StyledCard = styled(Card)`
   margin-bottom: 1rem;
 `;
 
-const EventIcon2 = styled("div")`
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background-color: currentColor;
-`;
-
 interface EventIconProps {
   bgColor: string;
 }
