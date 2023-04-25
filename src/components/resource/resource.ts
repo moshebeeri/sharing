@@ -1,8 +1,23 @@
-// resource.ts
-interface Resource {
+import { AvailabilityPattern } from "./AvailabilityPattern";
+
+
+class Resource {
   id: number;
   name: string;
-  sharingStrategy: SharingStrategy;
+  availabilityGroupId: number;
+  availability: AvailabilityPattern[];
+
+  constructor(
+    id: number,
+    name: string,
+    availabilityGroupId: number,
+    availability: AvailabilityPattern[]
+  ) {
+    this.id = id;
+    this.name = name;
+    this.availabilityGroupId = availabilityGroupId;
+    this.availability = availability;
+  }
 }
 
 type SharingStrategy = TimeBasedSharingStrategy | DurationBasedSharingStrategy | GroupBasedSharingStrategy;
@@ -68,4 +83,27 @@ class ResourceSharingSystem {
   // Other methods for ordering, validation, etc.
 }
 
-export { ResourceSharingSystem, type Resource, type DurationBasedSharingStrategy };
+
+class AvailabilityGroup {
+  id: number;
+  name: string;
+  resources: Resource[];
+
+  constructor(id: number, name: string) {
+    this.id = id;
+    this.name = name;
+    this.resources = [];
+  }
+
+  addResource(resource: Resource): Resource[] {
+    this.resources.push(resource);
+    return this.resources;
+  }
+}
+
+export {
+  ResourceSharingSystem,
+  AvailabilityGroup,
+  Resource,
+  type DurationBasedSharingStrategy
+};

@@ -1,42 +1,34 @@
-type FieldPart = {
-  from: number;
-  to: number;
-  step: number;
-};
-
 interface Field {
   from: number;
   to: number;
   step: number;
 }
 
-export class AvailabilityPattern {
-  minutes: FieldPart[];
-  hours: FieldPart[];
-  daysOfMonth: FieldPart[];
-  months: FieldPart[];
-  daysOfWeek: FieldPart[];
+class AvailabilityPattern {
+  minutes: Field[];
+  hours: Field[];
+  daysOfMonth: Field[];
+  months: Field[];
+  daysOfWeek: Field[];
 
   constructor(pattern: string) {
-    // console.log("pattern " + pattern);
-    const parts = pattern.split(' ');
+    const parts = pattern.split(" ");
 
     if (parts.length !== 5) {
-      throw new Error('Invalid pattern');
+      throw new Error("Invalid pattern");
     }
 
     this.minutes = this.parseField(parts[0], 0, 59);
     this.hours = this.parseField(parts[1], 0, 23);
     this.daysOfMonth = this.parseField(parts[2], 1, 31);
     this.months = this.parseField(parts[3], 1, 12);
-    // console.log("[part 4 week: " + parts[4]);
     this.daysOfWeek = this.parseField(parts[4], 0, 6);
 
     this.validatePattern();
   }
 
-  parseField(field: string, minValue: number, maxValue: number): Array<Field> {
-    const ranges = field.split(',').map(range => {
+  parseField(field: string, minValue: number, maxValue: number): Field[] {
+    const ranges = field.split(",").map((range) => {
       const [from, to, step] = range.split(/[-\/]/).map(Number);
 
       return {
@@ -54,29 +46,70 @@ export class AvailabilityPattern {
     const hours = this.fieldMatches(this.hours, date.getUTCHours())
     const daysOfMonth = this.fieldMatches(this.daysOfMonth, date.getUTCDate())
     const months = this.fieldMatches(this.months, date.getUTCMonth() +1)
-    const daysOfWeek = this.fieldMatches(this.daysOfWeek, date.getUTCDay()+1)
-    console.log(date)
-    console.log('date Minutes: ' + date.getUTCMinutes() + "date huors: " + date.getUTCHours() + "date daysOfMonth: " + date.getUTCDate() + "date months: " + date.getUTCMonth() + "date daysOfWeek: " + date.getUTCDay())
+    const daysOfWeek = this.fieldMatches(this.daysOfWeek, date.getUTCDay() + 1)
+    // console.log('Checking:', date, daysOfWeek, hours, minutes); // Debug print statement
+    console.log('date Minutes: ' + date.getUTCMinutes() + " date huors: " + date.getUTCHours() + " date daysOfMonth: " + date.getUTCDate() + " date months: " + date.getUTCMonth() + " date daysOfWeek: " + date.getUTCDay())
     console.log(`minutes: ${minutes}, hours: ${hours}, daysOfMonth: ${daysOfMonth}, months: ${months}, daysOfWeek: ${daysOfWeek}`);
     return (
       minutes && hours && daysOfMonth && months && daysOfWeek
     );
   }
 
-  private fieldMatches(fieldParts: FieldPart[], value: number): boolean {
+  public matchesRange(startTime: Date, endTime: Date): boolean {
+    const startDateMatches = this.matches(startTime);
+    const endDateMatches = this.matches(endTime);
+
+    if (startDateMatches && endDateMatches) {
+      return true;
+    }
+
+    if (this.crossesDayBoundary(startTime, endTime)) {
+      const nextDayStartTime = new Date(endTime);
+      nextDayStartTime.setUTCDate(nextDayStartTime.getUTCDate() + 1);
+      return this.matches(nextDayStartTime);
+    }
+
+    return false;
+  }
+
+  private crossesDayBoundary(startTime: Date, endTime: Date): boolean {
+    return endTime.getUTCHours() < startTime.getUTCHours();
+  }
+
+  // private fieldMatches(fieldParts: Field[], value: number): boolean {
+  //   return fieldParts.some(({ from, to, step }) => {
+  //     if (from === -1) {
+  //       return true;
+  //     }
+  //     // Ensure "to" value is not lower than "from" value
+  //     if (to < from) {
+  //       return false;
+  //     }
+  //     // Check if the value is within the range and if it matches the step
+  //     const isInRange = value >= from && value <= to;
+  //     const isStepMatch = (value - from ) % step === 0;
+  //     const ret = isInRange && isStepMatch;
+  //     return ret;
+  //   });
+  // }
+  private fieldMatches(fieldParts: Field[], value: number): boolean {
     return fieldParts.some(({ from, to, step }) => {
       if (from === -1) {
         return true;
       }
-      // Ensure "to" value is not lower than "from" value
-      if (to < from) {
-        return false;
-      }
+
       // Check if the value is within the range and if it matches the step
-      const isInRange = value >= from && value <= to;
-      const isStepMatch = (value - from ) % step === 0;
-      const ret = isInRange && isStepMatch;
-      return ret;
+      const isStepMatch = (value - from) % step === 0;
+
+      // Handle boundary crossing cases
+      if (to < from) {
+        const isInRange1 = value >= from;
+        const isInRange2 = value <= to;
+        return (isInRange1 || isInRange2) && isStepMatch;
+      } else {
+        const isInRange = value >= from && value <= to;
+        return isInRange && isStepMatch;
+      }
     });
   }
 
@@ -88,7 +121,7 @@ export class AvailabilityPattern {
           `days of the week: ${this.fieldToString(this.daysOfWeek)}`;
   }
 
-  private fieldToString(fieldParts: FieldPart[]): string {
+  private fieldToString(fieldParts: Field[]): string {
     return fieldParts.map(({ from, to, step }) => {
       if (from === -1) {
         return '*';
@@ -123,3 +156,5 @@ export class AvailabilityPattern {
   }
 
 }
+
+export { AvailabilityPattern };

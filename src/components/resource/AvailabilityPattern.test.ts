@@ -59,22 +59,21 @@ describe('AvailabilityPatternParser', () => {
     const pattern = '0 0-22/2 1-31/5 * 1-5';
     const parsedPattern = new AvailabilityPattern(pattern);
     const description = parsedPattern.toString();
-    console.log("description: \n" + description);
 
     const date1 = new Date(Date.UTC(2023, 0, 1, 2, 0, 0)); // Monday, Jan 1, 2 AM
     expect(parsedPattern.matches(date1)).toBeTruthy();
 
-    // const date2 = new Date(Date.UTC(2023, 0, 2, 4, 0, 0)); // Tuesday, Jan 2, 4 AM
-    // expect(parsedPattern.matches(date2)).toBeFalsy(); // Updated to expect false
+    const date2 = new Date(Date.UTC(2023, 0, 2, 4, 0, 0)); // Tuesday, Jan 2, 4 AM
+    expect(parsedPattern.matches(date2)).toBeFalsy(); // Updated to expect false
 
-    // const date3 = new Date(Date.UTC(2023, 0, 2, 23, 0, 0)); // Tuesday, Jan 2, 11 PM
-    // expect(parsedPattern.matches(date3)).toBeFalsy();
+    const date3 = new Date(Date.UTC(2023, 0, 2, 23, 0, 0)); // Tuesday, Jan 2, 11 PM
+    expect(parsedPattern.matches(date3)).toBeFalsy();
 
-    // const date4 = new Date(Date.UTC(2023, 0, 5, 22, 0, 0)); // Friday, Jan 5, 10 PM
-    // expect(parsedPattern.matches(date4)).toBeTruthy();
+    const date4 = new Date(Date.UTC(2023, 0, 5, 22, 0, 0)); // Friday, Jan 5, 10 PM
+    expect(parsedPattern.matches(date4)).toBeFalsy();
 
-    // const date5 = new Date(Date.UTC(2023, 0, 6, 0, 0, 0)); // Saturday, Jan 6, 0 AM
-    // expect(parsedPattern.matches(date5)).toBeFalsy();
+    const date5 = new Date(Date.UTC(2023, 0, 6, 0, 0, 0)); // Saturday, Jan 6, 0 AM
+    expect(parsedPattern.matches(date5)).toBeFalsy();
   });
 
 

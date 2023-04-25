@@ -21,7 +21,6 @@ export default function EventsRemote() {
     event: ProcessedEvent,
     action: EventActions
   ): Promise<ProcessedEvent> => {
-    console.log("handleConfirm =", action, event.title);
     if (action === "edit") {
       /** PUT event to remote DB */
     } else if (action === "create") {

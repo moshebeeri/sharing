@@ -72,15 +72,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       case 'Logout':
         handleLogout();
     }
-    console.log(setting);
     handleCloseUserMenu();
   };
-  // const getUserInitials = (displayName: string | null): string => {
-  //   if (!displayName) return '';
-  //   const nameParts = displayName.split(' ');
-  //   const initials = nameParts.map((part) => part.charAt(0).toUpperCase());
-  //   return initials.join('');
-  // };
   function getUserInitials(name: string | null, email: string | null): string {
     if (name) {
       return name.split(' ').map((n) => n[0]).join('').toUpperCase();

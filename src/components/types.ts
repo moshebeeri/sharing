@@ -55,3 +55,5 @@ export class Event implements CalendarEvent {
       this.userId      = userId;
     }
 }
+
+

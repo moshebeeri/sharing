@@ -46,7 +46,6 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFormSubmit = async (e: FormEvent) => {
-    console.log("handleFormSubmit");
     e.preventDefault();
     const userId = auth.currentUser?.uid;
     if (!userId) {
@@ -125,7 +124,6 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
     }
   };
   const handlePrimaryImage = (value: number) => {
-    console.log("handlePrimaryImage", value);
     setPrimaryImageIndex(value);
   };
 
