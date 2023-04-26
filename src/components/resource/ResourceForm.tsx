@@ -14,6 +14,9 @@ import {
   IconButton,
 } from "@mui/material";
 import { CheckBox, CheckBoxOutlineBlank, Delete } from "@mui/icons-material";
+import AvailabilityPatternForm from "./AvailabilityPatternForm"; // Import AvailabilityPatternForm
+import { useAppSelector } from '../../app/hooks';
+import Alert from '@mui/material/Alert';
 
 const db = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
@@ -35,10 +38,11 @@ interface ResourceFormProps {
 }
 
 const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMode }) => {
+  const availabilityPatternError = useAppSelector((state) => state.availabilityPattern.error.message);
   const [title, setTitle] = useState(resource?.title || "");
   const [description, setDescription] = useState(resource?.description || "");
   const [price, setPrice] = useState(resource?.price || 0);
-  const [availability, setAvailability] = useState(resource?.availability || "");
+  const [availabilityPattern, setAvailabilityPattern] = useState(resource?.availability || "");
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [selectedImages, setSelectedImages] = useState<{ file: File; url: string }[]>([]);
   const [imageUrls, setImageUrls] = useState<string[]>(resource?.images || []);
@@ -70,7 +74,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
       title,
       description,
       price,
-      availability,
+      availability: availabilityPattern, // Set availability to availabilityPattern
       images: [...imageUrls, ...newImageUrls],
       primaryImageIndex,
     });
@@ -168,6 +172,16 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
           onChange={(e) => setPrice(parseFloat(e.target.value))}
           required
         />
+        </Form.Group>
+
+      {/* Add AvailabilityPatternForm before the Images input */}
+      <Form.Group className="mb-3">
+        <Form.Label>Availability</Form.Label>
+        <AvailabilityPatternForm
+          value={availabilityPattern}
+          onChange={(value: string) => setAvailabilityPattern(value)}
+          fields={['hours', 'daysOfMonth', 'months', 'daysOfWeek']}
+        />
       </Form.Group>
 
       <Form.Group className="mb-3">
@@ -208,6 +222,11 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
               </IconButton>
             </div>
           ))}
+          {availabilityPatternError && (
+            <Alert severity="error" style={{ marginTop: 16 }}>
+              {availabilityPatternError}
+            </Alert>
+          )}
         </Form.Group>
 
       <Button variant="primary" type="submit">
