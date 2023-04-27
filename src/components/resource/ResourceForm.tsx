@@ -1,6 +1,16 @@
-import React, { ChangeEvent, FormEvent, useState, useRef } from "react";
+import React, { ChangeEvent, FormEvent, useState, useEffect, useRef } from "react";
 import { Form, Button } from "react-bootstrap";
-import { collection, doc, setDoc, deleteDoc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc,
+  setDoc,
+  where
+} from "firebase/firestore";
+
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getFirestore } from '@firebase/firestore';
 import { getStorage } from "firebase/storage";
@@ -22,7 +32,6 @@ const db = getFirestore(firebaseApp);
 const storage = getStorage(firebaseApp);
 const auth = getAuth(firebaseApp);
 
-
 interface ResourceFormProps {
   resource?: {
     id: string;
@@ -32,10 +41,15 @@ interface ResourceFormProps {
     availability: string;
     images: string[];
     primaryImageIndex: number;
+    availableResources: number;
+    isGroupClosed: boolean;
+    resourceGroupName: string;
+    videos: string[];
   };
   onSubmit: () => void;
   editMode?: boolean;
 }
+
 
 const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMode }) => {
   const availabilityPatternError = useAppSelector((state) => state.availabilityPattern.error.message);
@@ -48,8 +62,15 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
   const [imageUrls, setImageUrls] = useState<string[]>(resource?.images || []);
   const [primaryImageIndex, setPrimaryImageIndex] = useState(resource?.primaryImageIndex || 0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [availableResources, setAvailableResources] = useState(resource?.availableResources || 1);
+  const [isGroupClosed, setIsGroupClosed] = useState(resource?.isGroupClosed || false);
+  const [resourceGroupName, setResourceGroupName] = useState(resource?.resourceGroupName || "");
+  const [videoFiles, setVideoFiles] = useState<File[]>([]);
+  const [resourceGroupNames, setResourceGroupNames] = useState<string[]>([]);
+  const [addNewResourceGroup, setAddNewResourceGroup] = useState(false);
 
   const handleFormSubmit = async (e: FormEvent) => {
+    console.log("handleFormSubmit");
     e.preventDefault();
     const userId = auth.currentUser?.uid;
     if (!userId) {
@@ -68,6 +89,19 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
         return await getDownloadURL(imageRef);
       })
     );
+    const newVideoUrls = await Promise.all(
+      videoFiles.map(async (videoFile, index) => {
+        const videoPath = `resources/${resourceRef.id}/videos/${index}`;
+        const videoRef = ref(storage, videoPath);
+        await uploadBytes(videoRef, videoFile);
+        return await getDownloadURL(videoRef);
+      })
+    );
+
+    if (addNewResourceGroup) {
+      // Save the new resource group to Firestore with the user ID
+      await addDoc(collection(db, "resourceGroups"), { name: resourceGroupName, userId });
+    }
 
     await setDoc(resourceRef, {
       userId,
@@ -77,10 +111,46 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
       availability: availabilityPattern, // Set availability to availabilityPattern
       images: [...imageUrls, ...newImageUrls],
       primaryImageIndex,
+      availableResources,
+      isGroupClosed,
+      resourceGroupName,
+      videos: newVideoUrls,
     });
     onSubmit();
   };
 
+
+  useEffect(() => {
+    const fetchResourceGroupNames = async () => {
+      const userId = auth.currentUser?.uid;
+      if (!userId) {
+        alert("User not logged in");
+        return;
+      }
+
+      const q = query(collection(db, "resourceGroups"), where("userId", "==", userId));
+      const querySnapshot = await getDocs(q);
+      const names: string[] = [];
+      querySnapshot.forEach((doc) => {
+        names.push(doc.data().name);
+      });
+      setResourceGroupNames(names);
+    };
+
+
+    fetchResourceGroupNames();
+  }, []);
+
+  useEffect(() => {
+    const totalSize = videoFiles.reduce((acc, video) => acc + video.size, 0);
+
+    if (totalSize > 200 * 1024 * 1024) {
+      //setSubmitDisabled(true);
+      console.log("The total size of the selected video files exceeds 200 MB.");
+    } else {
+      //setSubmitDisabled(false);
+    }
+  }, [videoFiles]);
 
   const handleDelete = async () => {
     if (!resource) return;
@@ -118,7 +188,6 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
     e.target.value = "";
   };
 
-
   const handleRemoveImage = (index: number) => {
     setSelectedImages((prevImages) => prevImages.filter((_, i) => i !== index));
 
@@ -129,6 +198,11 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
   };
   const handlePrimaryImage = (value: number) => {
     setPrimaryImageIndex(value);
+  };
+  const handleVideoSelect = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    setVideoFiles(Array.from(e.target.files).filter((file) => !file.name.startsWith(".")));
   };
 
   return (
@@ -175,16 +249,70 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
         </Form.Group>
 
       {/* Add AvailabilityPatternForm before the Images input */}
-      <Form.Group className="mb-3">
-        <Form.Label>Availability</Form.Label>
-        <AvailabilityPatternForm
-          value={availabilityPattern}
-          onChange={(value: string) => setAvailabilityPattern(value)}
-          fields={['hours', 'daysOfMonth', 'months', 'daysOfWeek']}
-        />
-      </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>Availability</Form.Label>
+          <AvailabilityPatternForm
+            value={availabilityPattern}
+            onChange={(value: string) => setAvailabilityPattern(value)}
+            fields={['hours', 'daysOfMonth', 'months', 'daysOfWeek']}
+          />
+        </Form.Group>
 
-      <Form.Group className="mb-3">
+        <Form.Group className="mb-3" controlId="availableResources">
+          <Form.Label>Available Resources</Form.Label>
+          <Form.Control
+            type="number"
+            min={1}
+            value={availableResources}
+            onChange={(e) => setAvailableResources(parseInt(e.target.value))}
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="isGroupClosed">
+          <Form.Check
+            type="checkbox"
+            label="Closed group (only admin can invite)"
+            checked={isGroupClosed}
+            onChange={(e) => setIsGroupClosed(e.target.checked)}
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3" controlId="resourceGroupName">
+          <Form.Label>Resource Group Name</Form.Label>
+          {addNewResourceGroup ? (
+            <Form.Control
+              type="text"
+              placeholder="Enter resource group name"
+              value={resourceGroupName}
+              onChange={(e) => setResourceGroupName(e.target.value)}
+            />
+          ) : (
+              <Form.Select
+                value={resourceGroupName}
+                onChange={(e) => {
+                  const selectedValue = e.target.value;
+                  if (selectedValue === "add-new") {
+                    setAddNewResourceGroup(true);
+                    setResourceGroupName("");
+                  } else {
+                    setResourceGroupName(selectedValue);
+                  }
+                }}
+              >
+                <option value="" disabled>
+                  Select a Resource Group
+                </option>
+                {resourceGroupNames.map((name, index) => (
+                  <option key={index} value={name}>
+                    {name}
+                  </option>
+                ))}
+                <option value="add-new">Add New Resource Group</option>
+              </Form.Select>
+          )}
+        </Form.Group>
+
+        <Form.Group className="mb-3">
           <Form.Label>Images</Form.Label>
           <input
             type="file"
@@ -228,6 +356,16 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
             </Alert>
           )}
         </Form.Group>
+
+        {/* <Form.Group className="mb-3">
+          <input
+            type="file"
+            multiple
+            accept="video/*"
+            onChange={handleVideoSelect}
+            style={{ display: "block" }}
+          />
+        </Form.Group> */}
 
       <Button variant="primary" type="submit">
         {resource ? "Update" : "Add"} Resource

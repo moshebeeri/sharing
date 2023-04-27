@@ -57,6 +57,7 @@ const FieldRow: React.FC<FieldRowProps> = ({ label, name, fromValue, toValue, in
             min={min}
             max={max}
             enumValues={enumValues}
+            intervalMode={true}
             />
           </Grid>
           <Grid item xs={1}>

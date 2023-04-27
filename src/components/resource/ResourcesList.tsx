@@ -12,6 +12,10 @@ export interface ResourceType {
   availability: string;
   images: string[];
   primaryImageIndex: number;
+  availableResources: number;
+  isGroupClosed: boolean;
+  resourceGroupName: string;
+  videos: string[];
 }
 
 interface ResourcesListProps {

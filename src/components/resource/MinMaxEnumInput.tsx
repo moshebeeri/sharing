@@ -8,20 +8,35 @@ interface MinMaxEnumInputProps {
   min?: number;
   max?: number;
   enumValues?: string[];
+  intervalMode?: boolean;
 }
 
-const MinMaxEnumInput: React.FC<MinMaxEnumInputProps> = ({ label, value, onChange, min, max, enumValues }) => {
+const MinMaxEnumInput: React.FC<MinMaxEnumInputProps> = ({ label, value, onChange, min, max, enumValues, intervalMode = false }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onChange(event.target.value);
   };
 
   const renderMenuItems = () => {
-    if (enumValues) {
+    if (enumValues && !intervalMode) {
       return enumValues.map((val, index) => (
         <MenuItem key={index} value={val}>
           {val}
         </MenuItem>
       ));
+    }
+
+    if (intervalMode) {
+      const items = [];
+      const minVal = min ?? 1;
+      const limit = enumValues ? enumValues.length : (max ?? 1);
+      for (let i = minVal; i <= limit; i++) {
+        items.push(
+          <MenuItem key={i} value={i}>
+            {i}
+          </MenuItem>
+        );
+      }
+      return items;
     }
 
     if (min !== undefined && max !== undefined) {
