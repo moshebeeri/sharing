@@ -28,14 +28,23 @@ interface AvailabilityPatternFormProps {
   value: string;
   onChange: (value: string) => void;
   fields?: (keyof PatternType)[];
+  required?: boolean;
+  onFormValid?: (valid: boolean) => void;
 }
 
-const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({ value, onChange, fields }) => {
+const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
+  value,
+  onChange,
+  fields,
+  required,
+  onFormValid,
+}) => {
   const dispatch = useAppDispatch();
 
   const [open, setOpen] = useState(false);
   const [pattern, setPattern] = useState({ minutes: '', hours: '', daysOfMonth: '', months: '', daysOfWeek: '' });
   const [anyOptions, setAnyOptions] = useState({ minutes: false, hours: false, daysOfMonth: false, months: false, daysOfWeek: false });
+  const [formValid, setFormValid] = useState(false);
 
   useEffect(() => {
     const parts = value.split(' ');
@@ -140,6 +149,18 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({ value
     const parts = value.split('/');
     return parts.length === 2 ? parts[1] : '';
   };
+  const validateForm = () => {
+    if (!required || (required && value !== "")) {
+      setFormValid(true);
+    } else {
+      setFormValid(false);
+    }
+  };
+
+  useEffect(() => {
+    validateForm();
+  }, [value]);
+
 
   const renderFields = (
     label: string,

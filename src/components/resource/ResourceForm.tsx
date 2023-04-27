@@ -24,7 +24,7 @@ import {
   IconButton,
 } from "@mui/material";
 import { CheckBox, CheckBoxOutlineBlank, Delete } from "@mui/icons-material";
-import AvailabilityPatternForm from "./AvailabilityPatternForm"; // Import AvailabilityPatternForm
+import AvailabilityPatternForm from "./AvailabilityPatternForm";
 import { useAppSelector } from '../../app/hooks';
 import Alert from '@mui/material/Alert';
 
@@ -68,6 +68,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
   const [videoFiles, setVideoFiles] = useState<File[]>([]);
   const [resourceGroupNames, setResourceGroupNames] = useState<string[]>([]);
   const [addNewResourceGroup, setAddNewResourceGroup] = useState(false);
+  const [formValid, setFormValid] = useState(false);
 
   const handleFormSubmit = async (e: FormEvent) => {
     console.log("handleFormSubmit");
@@ -219,7 +220,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
 
         <Form.Control
           type="text"
-          placeholder="Enter title"
+          placeholder="Enter title *"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
@@ -227,7 +228,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
       </Form.Group>
 
       <Form.Group className="mb-3" controlId="description">
-        <Form.Label>Description</Form.Label>
+        <Form.Label>Description *</Form.Label>
         <Form.Control
           as="textarea"
           placeholder="Enter description"
@@ -238,7 +239,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
       </Form.Group>
 
       <Form.Group className="mb-3" controlId="price">
-        <Form.Label>Price</Form.Label>
+        <Form.Label>Price (in USD $) *</Form.Label>
         <Form.Control
           type="number"
           placeholder="Enter price"
@@ -248,13 +249,13 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
         />
         </Form.Group>
 
-      {/* Add AvailabilityPatternForm before the Images input */}
         <Form.Group className="mb-3">
-          <Form.Label>Availability</Form.Label>
+          <Form.Label>Availability *</Form.Label>
           <AvailabilityPatternForm
             value={availabilityPattern}
             onChange={(value: string) => setAvailabilityPattern(value)}
             fields={['hours', 'daysOfMonth', 'months', 'daysOfWeek']}
+            required
           />
         </Form.Group>
 
@@ -313,6 +314,16 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
         </Form.Group>
 
         <Form.Group className="mb-3">
+          <input
+            type="file"
+            multiple
+            accept="video/*"
+            onChange={handleVideoSelect}
+            style={{ display: "block" }}
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
           <Form.Label>Images</Form.Label>
           <input
             type="file"
@@ -357,18 +368,8 @@ const ResourceForm: React.FC<ResourceFormProps> = ({ resource, onSubmit, editMod
           )}
         </Form.Group>
 
-        {/* <Form.Group className="mb-3">
-          <input
-            type="file"
-            multiple
-            accept="video/*"
-            onChange={handleVideoSelect}
-            style={{ display: "block" }}
-          />
-        </Form.Group> */}
-
-      <Button variant="primary" type="submit">
-        {resource ? "Update" : "Add"} Resource
+      <Button variant="primary" type="submit" disabled={!formValid}>
+          {resource ? "Update" : "Add"} Resource
       </Button>
       {resource && (
         <Button variant="danger" onClick={handleDelete} className="ms-3">
