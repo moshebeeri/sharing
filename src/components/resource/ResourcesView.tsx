@@ -31,6 +31,10 @@ const ResourcesView: React.FC = () => {
     setSelectedOption(newValue);
   };
 
+  const onResourceFormSubmit = () => {
+    setSelectedOption(0);
+  };
+
   return (
     <Container>
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
@@ -43,7 +47,7 @@ const ResourcesView: React.FC = () => {
 
       {selectedOption === 0 && <ResourcesList resources={resources} title="My Resources" />}
       {selectedOption === 1 && <ResourcesList resources={resources} title="Find Resource"/>}
-      {selectedOption === 2 && <ResourceForm onSubmit={() => {}} />}
+      {selectedOption === 2 && <ResourceForm onSubmit={onResourceFormSubmit} />}
     </Container>
   );
 };

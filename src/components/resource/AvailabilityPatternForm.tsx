@@ -106,7 +106,6 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
       dispatch(setAvailabilityPatternError({ hasError: true, message: "The 'to' value should be greater than the 'from' value." }));
       return;
     } else {
-      console.log("The 'from' value is <= 'to' value.");
       dispatch(setAvailabilityPatternError({ hasError: false, message: "" }));
     }
     if (field === 'from') {
@@ -197,7 +196,7 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
     <div>
       <Card>
         <CardHeader
-          title={`Availability Pattern: ${value}`}
+          title={`Pattern: [${value}]`}
           action={
             <IconButton onClick={handleOpen} size="small">
               <InfoIcon />
