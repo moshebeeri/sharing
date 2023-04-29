@@ -21,9 +21,17 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { getFirestore } from '@firebase/firestore'
 import { getStorage } from 'firebase/storage'
 import { firebaseApp } from '../../config/firebase'
-import { Typography, Card, CardContent } from '@mui/material'
+import {
+  Typography,
+  Card,
+  CardContent,
+  ListItemText,
+  List,
+  ListItem
+} from '@mui/material'
 import { blue } from '@mui/material/colors'
 import { Box } from '@mui/system'
+import AddIcon from '@mui/icons-material/Add'
 import { getAuth } from 'firebase/auth'
 import { Container, IconButton } from '@mui/material'
 import { CheckBox, CheckBoxOutlineBlank, Delete } from '@mui/icons-material'
@@ -32,6 +40,7 @@ import { useAppSelector } from '../../app/hooks'
 import Alert from '@mui/material/Alert'
 import { AddressCollector } from '../location/AddressCollector'
 import { styled, Theme } from '@mui/system'
+import { AvailabilityPattern } from './AvailabilityPattern'
 
 const db = getFirestore(firebaseApp)
 const storage = getStorage(firebaseApp)
@@ -73,9 +82,8 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   const [title, setTitle] = useState(resource?.title || '')
   const [description, setDescription] = useState(resource?.description || '')
   const [price, setPrice] = useState(resource?.price || 0)
-  const [availabilityPattern, setAvailabilityPattern] = useState(
-    resource?.availability || ''
-  )
+  const [availabilityPatterns, setAvailabilityPatterns] = useState<AvailabilityPattern[]>([]);
+  const [currentPattern, setCurrentPattern] = useState<string>('');
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [selectedImages, setSelectedImages] = useState<
     { file: File; url: string }[]
@@ -150,7 +158,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
       title,
       description,
       price,
-      availability: availabilityPattern,
+      availability: availabilityPatterns.map(pattern => pattern.toString()),
       images: [...imageUrls, ...newImageUrls],
       primaryImageIndex,
       availableResources,
@@ -166,6 +174,37 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     })
     onSubmit()
   }
+  // const handleAddPattern = (value: string) => {
+  //   try {
+  //     const pattern = new AvailabilityPattern(value);
+  //     setAvailabilityPatterns([...availabilityPatterns, pattern]);
+  //     setCurrentPattern('');
+  //   } catch (error) {
+  //     console.error('Invalid pattern:', error);
+  //   }
+  // };
+
+  const handlePatternChange = (value: string) => {
+    setCurrentPattern(value);
+  };
+
+  const addAvailabilityPattern = () => {
+    if (currentPattern !== '') {
+      try {
+        const pattern = new AvailabilityPattern(currentPattern);
+        setAvailabilityPatterns([...availabilityPatterns, pattern]);
+      } catch (error) {
+        console.error('Invalid pattern addAvailabilityPattern:', error);
+      }
+      setCurrentPattern('');
+    }
+  };
+
+  const editAvailabilityPattern = (index: number) => {
+    const patternToEdit = availabilityPatterns[index].toString();
+    setCurrentPattern(patternToEdit);
+    setAvailabilityPatterns(availabilityPatterns.filter((_, i) => i !== index));
+  };
 
   useEffect(() => {
     const fetchResourceGroupNames = async () => {
@@ -193,12 +232,12 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
       !!title &&
         !!description &&
         !!price &&
-        !!availabilityPattern &&
+        !!(availabilityPatterns.length > 0) &&
         !!addressData.address &&
         !!addressData.lat &&
         !!addressData.lng
     )
-  }, [title, description, price, availabilityPattern, addressData])
+  }, [title, description, price, availabilityPatterns, addressData])
 
   useEffect(() => {
     const totalSize = videoFiles.reduce((acc, video) => acc + video.size, 0)
@@ -427,17 +466,32 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
 
         <StyledCard>
           <CardContent>
-            <Typography variant='h5'>Availability *</Typography>
-
-            <Form.Group className='mb-3'>
-              <AvailabilityPatternForm
-                value={availabilityPattern}
-                onChange={(value: string) => setAvailabilityPattern(value)}
-                fields={['hours', 'daysOfMonth', 'months', 'daysOfWeek']}
-                required
-              />
-            </Form.Group>
-
+            {/* <Typography variant='h5'>Availability</Typography> */}
+            <Typography variant='h4' gutterBottom style={{ color: blue[500] }}>
+              {editMode ? 'Edit Availability' : 'Add Availability'}
+            </Typography>
+            <List>
+              {availabilityPatterns.map((pattern, index) => (
+                <ListItem key={index}>
+                  <ListItemText primary={`Pattern ${index + 1}: ${pattern.toString()}`} />
+                  <Button variant="outlined" color="primary" onClick={() => editAvailabilityPattern(index)}>
+                    Edit
+                  </Button>
+                </ListItem>
+              ))}
+            </List>
+            <AvailabilityPatternForm
+              value={currentPattern}
+              onChange={handlePatternChange}
+              onAddPattern={addAvailabilityPattern}
+            />
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={addAvailabilityPattern}
+            >
+              <AddIcon />
+            </Button>
             <Form.Group className='mb-3' controlId='availableResources'>
               <Form.Label>Number of Available Resources *</Form.Label>
               <Form.Control

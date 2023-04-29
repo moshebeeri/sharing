@@ -27,22 +27,26 @@ type PatternType = {
 interface AvailabilityPatternFormProps {
   value: string;
   onChange: (value: string) => void;
+  onAddPattern: (value: string) => void;
   fields?: (keyof PatternType)[];
-  required?: boolean;
-  onFormValid?: (valid: boolean) => void;
 }
 
 const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
   value,
   onChange,
   fields,
-  required,
-  onFormValid,
+  onAddPattern
 }) => {
   const dispatch = useAppDispatch();
 
   const [open, setOpen] = useState(false);
-  const [pattern, setPattern] = useState({ minutes: '', hours: '', daysOfMonth: '', months: '', daysOfWeek: '' });
+  const [pattern, setPattern] = useState({
+    minutes: '*',
+    hours: '*',
+    daysOfMonth: '*',
+    months: '*',
+    daysOfWeek: '*',
+  });
   const [anyOptions, setAnyOptions] = useState({ minutes: false, hours: false, daysOfMonth: false, months: false, daysOfWeek: false });
   const [formValid, setFormValid] = useState(false);
 
@@ -72,6 +76,10 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
     }
   }, [fields]);
 
+  useEffect(() => {
+    onChange(Object.values(pattern).join(' '));
+  }, [pattern, onChange]);
+
   const handleOpen = () => {
     setOpen(true);
   };
@@ -82,7 +90,10 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
 
   const handleChange = (updatedValue: string, name: keyof typeof pattern) => {
     setPattern({ ...pattern, [name]: updatedValue });
-    onChange(Object.values({ ...pattern, [name]: updatedValue }).join(' '));
+  };
+
+  const handleAddPattern = () => {
+    onAddPattern(Object.values({ ...pattern }).join(' '));
   };
 
   const handleFieldChange = (
@@ -97,17 +108,17 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
     let repeatValue = parts.length === 2 && parts[1].split('/').length === 2 ? parts[1].split('/')[1] : '';
 
     // Validate fromValue < toValue
-    if (field === 'from' && parseFloat(value) >= parseFloat(toValue)) {
-      console.error("The 'from' value should be less than the 'to' value.");
-      dispatch(setAvailabilityPatternError({ hasError: true, message: "The 'from' value should be less than the 'to' value." }));
-      return;
-    } else if (field === 'to' && parseFloat(value) <= parseFloat(fromValue)) {
-      console.error("The 'to' value should be greater than the 'from' value.");
-      dispatch(setAvailabilityPatternError({ hasError: true, message: "The 'to' value should be greater than the 'from' value." }));
-      return;
-    } else {
-      dispatch(setAvailabilityPatternError({ hasError: false, message: "" }));
-    }
+    // if (field === 'from' && parseFloat(value) >= parseFloat(toValue)) {
+    //   console.error("The 'from' value should be less than the 'to' value.");
+    //   dispatch(setAvailabilityPatternError({ hasError: true, message: "The 'from' value should be less than the 'to' value." }));
+    //   return;
+    // } else if (field === 'to' && parseFloat(value) <= parseFloat(fromValue)) {
+    //   console.error("The 'to' value should be greater than the 'from' value.");
+    //   dispatch(setAvailabilityPatternError({ hasError: true, message: "The 'to' value should be greater than the 'from' value." }));
+    //   return;
+    // } else {
+    //   dispatch(setAvailabilityPatternError({ hasError: false, message: "" }));
+    // }
     if (field === 'from') {
       fromValue = value;
     } else if (field === 'to') {
@@ -149,11 +160,12 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
     return parts.length === 2 ? parts[1] : '';
   };
   const validateForm = () => {
-    if (!required || (required && value !== "")) {
-      setFormValid(true);
-    } else {
-      setFormValid(false);
-    }
+    setFormValid(true);
+    // if (!required || (required && value !== "")) {
+    //   setFormValid(true);
+    // } else {
+    //   setFormValid(false);
+    // }
   };
 
   useEffect(() => {
@@ -172,7 +184,6 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
     if (fields && !fields.includes(name)) {
       return null;
     }
-
     return (
       <FieldRow
         label={label}
@@ -219,7 +230,7 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
           ])}
         </CardContent>
       </Card>
-
+      {/* <button onClick={handleAddPattern}>a+a</button> */}
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Pattern Explanation</DialogTitle>
         <DialogContent>

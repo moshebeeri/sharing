@@ -113,12 +113,19 @@ class AvailabilityPattern {
     });
   }
 
-  toString(): string {
-    return `minutes: ${this.fieldToString(this.minutes)}\n` +
-          `hours: ${this.fieldToString(this.hours)}\n` +
-          `days of the month: ${this.fieldToString(this.daysOfMonth)}\n` +
-          `months: ${this.fieldToString(this.months)}\n` +
-          `days of the week: ${this.fieldToString(this.daysOfWeek)}`;
+  toString(debugMode = false): string {
+    if (debugMode)
+      return `minutes: ${this.fieldToString(this.minutes)}\n` +
+            `hours: ${this.fieldToString(this.hours)}\n` +
+            `days of the month: ${this.fieldToString(this.daysOfMonth)}\n` +
+            `months: ${this.fieldToString(this.months)}\n` +
+            `days of the week: ${this.fieldToString(this.daysOfWeek)}`;
+
+    return `${this.fieldToString(this.minutes)} ` +
+          `${this.fieldToString(this.hours)} ` +
+          `${this.fieldToString(this.daysOfMonth)} ` +
+          `${this.fieldToString(this.months)} ` +
+          `${this.fieldToString(this.daysOfWeek)}`;
   }
 
   private fieldToString(fieldParts: Field[]): string {

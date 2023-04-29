@@ -6,7 +6,7 @@ The **AvailabilityPattern** class is designed to evaluate if a given date and ti
 
 The pattern consists of 5 space-separated fields:
 
-```
+```JSON
 
 * * * * *
 - - - - -
