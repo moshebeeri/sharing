@@ -52,13 +52,19 @@ interface ResourceFormProps {
     title: string
     description: string
     price: number
-    availability: string
+    availability: string[]
     images: string[]
     primaryImageIndex: number
     availableResources: number
     isGroupClosed: boolean
     resourceGroupName: string
     videos: string[]
+    address: string
+    lat: number
+    lng: number
+    radius: number | null
+    isPickup: boolean
+    createdAt: Date
   }
   onSubmit: () => void
   editMode?: boolean
@@ -79,41 +85,47 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   const availabilityPatternError = useAppSelector(
     state => state.availabilityPattern.error.message
   )
-  const [title, setTitle] = useState(resource?.title || '')
-  const [description, setDescription] = useState(resource?.description || '')
-  const [price, setPrice] = useState(resource?.price || 0)
-  const [availabilityPatterns, setAvailabilityPatterns] = useState<AvailabilityPattern[]>([]);
-  const [currentPattern, setCurrentPattern] = useState<string>('');
+  const [title, setTitle] = useState(resource?.title ?? '')
+  const [description, setDescription] = useState(resource?.description ?? '')
+  const [price, setPrice] = useState(resource?.price ?? 0)
+  const [availabilityPatterns, setAvailabilityPatterns] = useState<
+    AvailabilityPattern[]
+  >(
+    resource?.availability?.map(
+      patternString => new AvailabilityPattern(patternString)
+    ) ?? []
+  )
+  const [currentPattern, setCurrentPattern] = useState<string>('')
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [selectedImages, setSelectedImages] = useState<
     { file: File; url: string }[]
   >([])
-  const [imageUrls, setImageUrls] = useState<string[]>(resource?.images || [])
+  const [imageUrls, setImageUrls] = useState<string[]>(resource?.images ?? [])
   const [primaryImageIndex, setPrimaryImageIndex] = useState(
-    resource?.primaryImageIndex || 0
+    resource?.primaryImageIndex ?? 0
   )
   const inputRef = useRef<HTMLInputElement>(null)
   const [availableResources, setAvailableResources] = useState(
-    resource?.availableResources || 1
+    resource?.availableResources ?? 1
   )
   const [isGroupClosed, setIsGroupClosed] = useState(
-    resource?.isGroupClosed || false
+    resource?.isGroupClosed ?? false
   )
   const [resourceGroupName, setResourceGroupName] = useState(
-    resource?.resourceGroupName || ''
+    resource?.resourceGroupName ?? ''
   )
   const [videoFiles, setVideoFiles] = useState<File[]>([])
   const [resourceGroupNames, setResourceGroupNames] = useState<string[]>([])
   const [addNewResourceGroup, setAddNewResourceGroup] = useState(false)
   const [formValid, setFormValid] = useState(false)
   const [addressData, setAddressData] = useState({
-    address: '',
-    lat: 0,
-    lng: 0
+    address: resource?.address ?? '',
+    lat: resource?.lat ?? 0,
+    lng: resource?.lng ?? 0
   })
-  const [radius, setRadius] = useState<number | null>(null)
+  const [radius, setRadius] = useState<number | null>(resource?.radius ?? null)
   const [radiusUnit, setRadiusUnit] = useState<'miles' | 'km'>('miles')
-  const [isPickup, setIsPickup] = useState<boolean>(false)
+  const [isPickup, setIsPickup] = useState<boolean>(resource?.isPickup ?? false)
   const [currency, setCurrency] = useState<'USD' | 'EUR' | 'CAD' | 'MXN'>('USD')
 
   const handleFormSubmit = async (e: FormEvent) => {
@@ -185,26 +197,26 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   // };
 
   const handlePatternChange = (value: string) => {
-    setCurrentPattern(value);
-  };
+    setCurrentPattern(value)
+  }
 
   const addAvailabilityPattern = () => {
     if (currentPattern !== '') {
       try {
-        const pattern = new AvailabilityPattern(currentPattern);
-        setAvailabilityPatterns([...availabilityPatterns, pattern]);
+        const pattern = new AvailabilityPattern(currentPattern)
+        setAvailabilityPatterns([...availabilityPatterns, pattern])
       } catch (error) {
-        console.error('Invalid pattern addAvailabilityPattern:', error);
+        console.error('Invalid pattern addAvailabilityPattern:', error)
       }
-      setCurrentPattern('');
+      setCurrentPattern('')
     }
-  };
+  }
 
   const editAvailabilityPattern = (index: number) => {
-    const patternToEdit = availabilityPatterns[index].toString();
-    setCurrentPattern(patternToEdit);
-    setAvailabilityPatterns(availabilityPatterns.filter((_, i) => i !== index));
-  };
+    const patternToEdit = availabilityPatterns[index].toString()
+    setCurrentPattern(patternToEdit)
+    setAvailabilityPatterns(availabilityPatterns.filter((_, i) => i !== index))
+  }
 
   useEffect(() => {
     const fetchResourceGroupNames = async () => {
@@ -420,10 +432,15 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
             <Form.Group className='mb-3' controlId='address'>
               <Form.Label>Address *</Form.Label>
               <AddressCollector
+                initialPosition={{
+                  lat: addressData.lat,
+                  lng: addressData.lng
+                }}
                 onLocationChange={(address, position) =>
                   setAddressData({ ...position, address })
                 }
               />
+              {' '}
             </Form.Group>
 
             <Form.Group className='mb-3' controlId='isPickup'>
@@ -473,8 +490,14 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
             <List>
               {availabilityPatterns.map((pattern, index) => (
                 <ListItem key={index}>
-                  <ListItemText primary={`Pattern ${index + 1}: ${pattern.toString()}`} />
-                  <Button variant="outlined" color="primary" onClick={() => editAvailabilityPattern(index)}>
+                  <ListItemText
+                    primary={`Pattern ${index + 1}: ${pattern.toString()}`}
+                  />
+                  <Button
+                    variant='outlined'
+                    color='primary'
+                    onClick={() => editAvailabilityPattern(index)}
+                  >
                     Edit
                   </Button>
                 </ListItem>

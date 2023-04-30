@@ -9,13 +9,19 @@ export interface ResourceType {
   title: string;
   description: string;
   price: number;
-  availability: string;
+  availability: string[];
   images: string[];
   primaryImageIndex: number;
   availableResources: number;
   isGroupClosed: boolean;
   resourceGroupName: string;
   videos: string[];
+  address: string;
+  lat: number;
+  lng: number;
+  radius: number | null;
+  isPickup: boolean;
+  createdAt: Date;
 }
 
 interface ResourcesListProps {

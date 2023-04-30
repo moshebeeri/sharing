@@ -31,6 +31,17 @@ interface AvailabilityPatternFormProps {
   fields?: (keyof PatternType)[];
 }
 
+const parsePatternString = (patternString: string) => {
+  const parts = patternString.split(' ');
+  return {
+    minutes: parts[0] || '*',
+    hours: parts[1] || '*',
+    daysOfMonth: parts[2] || '*',
+    months: parts[3] || '*',
+    daysOfWeek: parts[4] || '*',
+  };
+};
+
 const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
   value,
   onChange,
@@ -49,6 +60,10 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
   });
   const [anyOptions, setAnyOptions] = useState({ minutes: false, hours: false, daysOfMonth: false, months: false, daysOfWeek: false });
   const [formValid, setFormValid] = useState(false);
+
+  useEffect(() => {
+    setPattern(parsePatternString(value));
+  }, [value]);
 
   useEffect(() => {
     const parts = value.split(' ');

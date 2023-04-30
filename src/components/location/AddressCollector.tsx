@@ -37,29 +37,19 @@ interface Position {
 
 interface AddressCollectorProps {
   onLocationChange: (address: string, position: Position) => void
-  // required?: boolean;
+  initialPosition?: Position
 }
 
-const AddressCollector: FC<AddressCollectorProps> = ({ onLocationChange }) => {
+const AddressCollector: FC<AddressCollectorProps> = ({
+  onLocationChange,
+  initialPosition
+}) => {
   const [map, setMap] = useState<google.maps.Map | null>(null)
-  const [position, setPosition] = useState<Position | null>(null)
-  const [infoOpen, setInfoOpen] = useState(false)
-
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(({ coords }) => {
-        setPosition({ lat: coords.latitude, lng: coords.longitude })
-      })
-    }
-  }, [])
-
-  const onLoad = useCallback((mapInstance: google.maps.Map) => {
-    setMap(mapInstance)
-  }, [])
-
-  const onUnmount = useCallback(() => {
-    setMap(null)
-  }, [])
+  const [position, setPosition] = useState<Position>()
+  const [infoOpen, setInfoOpen] = useState(
+    //initialPosition && initialPosition.lat !== 0 && initialPosition.lng !== 0
+    true
+  )
 
   const updateLocation = async (newPosition: Position) => {
     const response = await Geocode.fromLatLng(
@@ -73,6 +63,45 @@ const AddressCollector: FC<AddressCollectorProps> = ({ onLocationChange }) => {
       onLocationChange('', newPosition)
     }
   }
+  const setInitialPosition = (newPosition: Position) => {
+    console.log('setInitialPosition', newPosition)
+    setPosition(newPosition)
+    setInfoOpen(true)
+  }
+
+  useEffect(() => {
+    if (
+      initialPosition &&
+      initialPosition.lat !== 0 &&
+      initialPosition.lng !== 0
+    ) {
+      setInitialPosition({ lat: initialPosition.lat, lng: initialPosition.lng })
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(({ coords }) => {
+        setInitialPosition({ lat: coords.latitude, lng: coords.longitude })
+      })
+    }
+  }, [initialPosition])
+
+  // useEffect(() => {
+  //   if (
+  //     initialPosition &&
+  //     initialPosition.lat !== 0 &&
+  //     initialPosition.lng !== 0
+  //   ) {
+  //     setPosition(initialPosition)
+  //     // updateLocation(initialPosition);
+  //     setInfoOpen(true)
+  //   }
+  // }, [initialPosition, updateLocation])
+
+  const onLoad = useCallback((mapInstance: google.maps.Map) => {
+    setMap(mapInstance)
+  }, [])
+
+  const onUnmount = useCallback(() => {
+    setMap(null)
+  }, [])
 
   const onMapClick = async (event: google.maps.MapMouseEvent) => {
     if (event.latLng) {
@@ -134,7 +163,10 @@ const AddressCollector: FC<AddressCollectorProps> = ({ onLocationChange }) => {
             >
               {position && (
                 <>
-                  <Marker position={position} />
+                  <Marker
+                    position={position}
+                    icon='http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                  />
                   {infoOpen && (
                     <InfoWindow
                       position={position}
