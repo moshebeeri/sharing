@@ -48,8 +48,8 @@ class AvailabilityPattern {
     const months = this.fieldMatches(this.months, date.getUTCMonth() +1)
     const daysOfWeek = this.fieldMatches(this.daysOfWeek, date.getUTCDay() + 1)
     // console.log('Checking:', date, daysOfWeek, hours, minutes); // Debug print statement
-    console.log('date Minutes: ' + date.getUTCMinutes() + " date huors: " + date.getUTCHours() + " date daysOfMonth: " + date.getUTCDate() + " date months: " + date.getUTCMonth() + " date daysOfWeek: " + date.getUTCDay())
-    console.log(`minutes: ${minutes}, hours: ${hours}, daysOfMonth: ${daysOfMonth}, months: ${months}, daysOfWeek: ${daysOfWeek}`);
+    // console.log('date Minutes: ' + date.getUTCMinutes() + " date huors: " + date.getUTCHours() + " date daysOfMonth: " + date.getUTCDate() + " date months: " + date.getUTCMonth() + " date daysOfWeek: " + date.getUTCDay())
+    // console.log(`minutes: ${minutes}, hours: ${hours}, daysOfMonth: ${daysOfMonth}, months: ${months}, daysOfWeek: ${daysOfWeek}`);
     return (
       minutes && hours && daysOfMonth && months && daysOfWeek
     );

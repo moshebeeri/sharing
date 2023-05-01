@@ -45,7 +45,7 @@ describe('AvailabilityPatternParser', () => {
     const pattern = '0 0-22/2 * * 0-6';
     const parsedPattern = new AvailabilityPattern(pattern);
 
-    const description = parsedPattern.toString();
+    const description = parsedPattern.toString(true);
     expect(description).toEqual(
       'minutes: 0-59\n' +
       'hours: 0-22/2\n' +

@@ -50,6 +50,8 @@ const AddressCollector: FC<AddressCollectorProps> = ({
     //initialPosition && initialPosition.lat !== 0 && initialPosition.lng !== 0
     true
   )
+  const [loading, setLoading] = useState(true)
+  const [markerPosition, setMarkerPosition] = useState<Position | null>(null)
 
   const updateLocation = async (newPosition: Position) => {
     const response = await Geocode.fromLatLng(
@@ -64,8 +66,8 @@ const AddressCollector: FC<AddressCollectorProps> = ({
     }
   }
   const setInitialPosition = (newPosition: Position) => {
-    console.log('setInitialPosition', newPosition)
     setPosition(newPosition)
+    setMarkerPosition(newPosition)
     setInfoOpen(true)
   }
 
@@ -75,28 +77,24 @@ const AddressCollector: FC<AddressCollectorProps> = ({
       initialPosition.lat !== 0 &&
       initialPosition.lng !== 0
     ) {
-      setInitialPosition({ lat: initialPosition.lat, lng: initialPosition.lng })
+      setInitialPosition(initialPosition)
+      if (map) {
+        map.setCenter(initialPosition)
+      }
     } else if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(({ coords }) => {
         setInitialPosition({ lat: coords.latitude, lng: coords.longitude })
       })
     }
-  }, [initialPosition])
+  }, [initialPosition, map])
 
-  // useEffect(() => {
-  //   if (
-  //     initialPosition &&
-  //     initialPosition.lat !== 0 &&
-  //     initialPosition.lng !== 0
-  //   ) {
-  //     setPosition(initialPosition)
-  //     // updateLocation(initialPosition);
-  //     setInfoOpen(true)
-  //   }
-  // }, [initialPosition, updateLocation])
+  useEffect(() => {
+    console.log('position updated', position)
+  }, [position])
 
   const onLoad = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance)
+    setLoading(false)
   }, [])
 
   const onUnmount = useCallback(() => {
@@ -161,21 +159,21 @@ const AddressCollector: FC<AddressCollectorProps> = ({
               onUnmount={onUnmount}
               onClick={onMapClick}
             >
-              {position && (
+              {!loading && markerPosition && (
                 <>
                   <Marker
-                    position={position}
-                    icon='http://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                    position={markerPosition}
+                    onClick={() => console.log('Marker clicked')}
                   />
                   {infoOpen && (
                     <InfoWindow
-                      position={position}
+                      position={markerPosition}
                       onCloseClick={() => setInfoOpen(false)}
                     >
                       <div>
                         <p>Selected location:</p>
-                        <p>Lat: {position.lat}</p>
-                        <p>Lng: {position.lng}</p>
+                        <p>Lat: {markerPosition.lat}</p>
+                        <p>Lng: {markerPosition.lng}</p>
                       </div>
                     </InfoWindow>
                   )}
