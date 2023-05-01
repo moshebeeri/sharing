@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 import {
   Card,
   CardContent,
@@ -10,117 +10,139 @@ import {
   DialogActions,
   Button,
   Typography,
-} from '@mui/material';
-import InfoIcon from '@mui/icons-material/Info';
-import FieldRow from './FieldRow';
-import { useAppDispatch } from '../../app/hooks';
-import { setAvailabilityPatternError } from '../../features/availabilityPattern/availabilityPatternSlice';
+  TextField,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Grid,
+  Box,
+  FormLabel
+} from '@mui/material'
+import InfoIcon from '@mui/icons-material/Info'
+import FieldRow from './FieldRow'
+import { useAppDispatch } from '../../app/hooks'
+import { setAvailabilityPatternError } from '../../features/availabilityPattern/availabilityPatternSlice'
 
 type PatternType = {
-  minutes: string;
-  hours: string;
-  daysOfMonth: string;
-  months: string;
-  daysOfWeek: string;
-};
+  minutes: string
+  hours: string
+  daysOfMonth: string
+  months: string
+  daysOfWeek: string
+}
 
 interface AvailabilityPatternFormProps {
-  value: string;
-  onChange: (value: string) => void;
-  onAddPattern: (value: string) => void;
-  fields?: (keyof PatternType)[];
+  value: string
+  onChange: (value: string) => void
+  onAddPattern: (value: string) => void
+  fields?: (keyof PatternType)[]
+  showInterval?: boolean
+  showAny?: boolean
 }
 
 const parsePatternString = (patternString: string) => {
-  const parts = patternString.split(' ');
+  const parts = patternString.split(' ')
   return {
     minutes: parts[0] || '*',
     hours: parts[1] || '*',
     daysOfMonth: parts[2] || '*',
     months: parts[3] || '*',
-    daysOfWeek: parts[4] || '*',
-  };
-};
+    daysOfWeek: parts[4] || '*'
+  }
+}
 
 const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
   value,
   onChange,
   fields,
-  onAddPattern
+  onAddPattern,
+  showInterval = false,
+  showAny = false
 }) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch()
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
   const [pattern, setPattern] = useState({
     minutes: '*',
     hours: '*',
     daysOfMonth: '*',
     months: '*',
-    daysOfWeek: '*',
-  });
-  const [anyOptions, setAnyOptions] = useState({ minutes: false, hours: false, daysOfMonth: false, months: false, daysOfWeek: false });
-  const [formValid, setFormValid] = useState(false);
+    daysOfWeek: '*'
+  })
+  const [anyOptions, setAnyOptions] = useState({
+    minutes: false,
+    hours: false,
+    daysOfMonth: false,
+    months: false,
+    daysOfWeek: false
+  })
+  const [formValid, setFormValid] = useState(false)
+
 
   useEffect(() => {
-    setPattern(parsePatternString(value));
-  }, [value]);
+    setPattern(parsePatternString(value))
+  }, [value])
 
   useEffect(() => {
-    const parts = value.split(' ');
+    const parts = value.split(' ')
     if (parts.length === 5) {
       setPattern({
         minutes: parts[0],
         hours: parts[1],
         daysOfMonth: parts[2],
         months: parts[3],
-        daysOfWeek: parts[4],
-      });
+        daysOfWeek: parts[4]
+      })
     }
-  }, [value]);
+  }, [value])
   useEffect(() => {
     if (fields) {
-      const updatedPattern = { ...pattern };
+      const updatedPattern = { ...pattern }
 
-      Object.keys(pattern).forEach((key) => {
+      Object.keys(pattern).forEach(key => {
         if (!fields.includes(key as keyof typeof pattern)) {
-          updatedPattern[key as keyof typeof pattern] = '*';
+          updatedPattern[key as keyof typeof pattern] = '*'
         }
-      });
+      })
 
-      onChange(Object.values(updatedPattern).join(' '));
+      onChange(Object.values(updatedPattern).join(' '))
     }
-  }, [fields]);
+  }, [fields])
 
   useEffect(() => {
-    onChange(Object.values(pattern).join(' '));
-  }, [pattern, onChange]);
+    onChange(Object.values(pattern).join(' '))
+  }, [pattern, onChange])
 
   const handleOpen = () => {
-    setOpen(true);
-  };
+    setOpen(true)
+  }
 
   const handleClose = () => {
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
   const handleChange = (updatedValue: string, name: keyof typeof pattern) => {
-    setPattern({ ...pattern, [name]: updatedValue });
-  };
+    setPattern({ ...pattern, [name]: updatedValue })
+  }
 
   const handleAddPattern = () => {
-    onAddPattern(Object.values({ ...pattern }).join(' '));
-  };
+    onAddPattern(Object.values({ ...pattern }).join(' '))
+  }
 
   const handleFieldChange = (
     value: string,
     name: keyof typeof pattern,
     field: 'from' | 'to' | 'interval'
   ) => {
-    const currentValue = pattern[name];
-    const parts = currentValue.split('-');
-    let fromValue = parts.length === 2 ? parts[0] : '';
-    let toValue = parts.length === 2 ? parts[1].split('/')[0] : '';
-    let repeatValue = parts.length === 2 && parts[1].split('/').length === 2 ? parts[1].split('/')[1] : '';
+    const currentValue = pattern[name]
+    const parts = currentValue.split('-')
+    let fromValue = parts.length === 2 ? parts[0] : ''
+    let toValue = parts.length === 2 ? parts[1].split('/')[0] : ''
+    let repeatValue =
+      parts.length === 2 && parts[1].split('/').length === 2
+        ? parts[1].split('/')[1]
+        : ''
 
     // Validate fromValue < toValue
     // if (field === 'from' && parseFloat(value) >= parseFloat(toValue)) {
@@ -135,57 +157,57 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
     //   dispatch(setAvailabilityPatternError({ hasError: false, message: "" }));
     // }
     if (field === 'from') {
-      fromValue = value;
+      fromValue = value
     } else if (field === 'to') {
-      toValue = value;
+      toValue = value
     } else if (field === 'interval') {
-      repeatValue = value;
+      repeatValue = value
     }
 
-    const updatedValue = `${fromValue}-${toValue}${repeatValue ? '/' + repeatValue : ''}`;
-    handleChange(updatedValue, name);
-  };
+    const updatedValue = `${fromValue}-${toValue}${
+      repeatValue ? '/' + repeatValue : ''
+    }`
+    handleChange(updatedValue, name)
+  }
 
-  const handleAnyChange = (
-    checked: boolean,
-    name: keyof typeof pattern
-  ) => {
-    setAnyOptions({ ...anyOptions, [name]: checked });
-    setPattern({ ...pattern, [name]: checked ? '*' : '' });
+  const handleAnyChange = (checked: boolean, name: keyof typeof pattern) => {
+    setAnyOptions({ ...anyOptions, [name]: checked })
+    setPattern({ ...pattern, [name]: checked ? '*' : '' })
     if (checked) {
-      onChange(Object.values({ ...pattern, [name]: '*' }).join(' '));
+      onChange(Object.values({ ...pattern, [name]: '*' }).join(' '))
     }
-  };
+  }
 
   const getFromValue = (name: keyof typeof pattern) => {
-    const value = pattern[name];
-    const parts = value.split('-');
-    return parts.length === 2 ? parts[0] : '';
-  };
+    const value = pattern[name]
+    const parts = value.split('-')
+    return parts.length === 2 ? parts[0] : ''
+  }
 
   const getToValue = (name: keyof typeof pattern) => {
-    const value = pattern[name];
-    const parts = value.split('-');
-    return parts.length === 2 ? parts[1].split('/')[0] : '';
-  };
+    const value = pattern[name]
+    const parts = value.split('-')
+    return parts.length === 2 ? parts[1].split('/')[0] : ''
+  }
 
   const getIntervalValue = (name: keyof typeof pattern) => {
-    const value = pattern[name];
-    const parts = value.split('/');
-    return parts.length === 2 ? parts[1] : '';
-  };
+    const value = pattern[name]
+    const parts = value.split('/')
+    return parts.length === 2 ? parts[1] : ''
+  }
   const validateForm = () => {
-    setFormValid(true);
+    setFormValid(true)
     // if (!required || (required && value !== "")) {
     //   setFormValid(true);
     // } else {
     //   setFormValid(false);
     // }
-  };
+  }
 
   useEffect(() => {
-    validateForm();
-  }, [value]);
+    validateForm()
+  }, [value])
+
 
 
   const renderFields = (
@@ -195,9 +217,8 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
     max?: number,
     enumValues?: string[]
   ) => {
-
     if (fields && !fields.includes(name)) {
-      return null;
+      return null
     }
     return (
       <FieldRow
@@ -207,16 +228,18 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
         toValue={getToValue(name)}
         intervalValue={getIntervalValue(name)}
         anyValue={anyOptions[name]}
-        onFromChange={(value) => handleFieldChange(value, name, 'from')}
-        onToChange={(value) => handleFieldChange(value, name, 'to')}
-        onIntervalChange={(value) => handleFieldChange(value, name, 'interval')}
-        onAnyChange={(checked) => handleAnyChange(checked, name)}
+        onFromChange={value => handleFieldChange(value, name, 'from')}
+        onToChange={value => handleFieldChange(value, name, 'to')}
+        onIntervalChange={value => handleFieldChange(value, name, 'interval')}
+        onAnyChange={checked => handleAnyChange(checked, name)}
         min={min}
         max={max}
         enumValues={enumValues}
+        showInterval={showInterval}
+        showAny={showAny}
       />
     )
-  };
+  }
 
   return (
     <div>
@@ -224,7 +247,7 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
         <CardHeader
           title={`Pattern: [${value}]`}
           action={
-            <IconButton onClick={handleOpen} size="small">
+            <IconButton onClick={handleOpen} size='small'>
               <InfoIcon />
             </IconButton>
           }
@@ -241,33 +264,31 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
             'Wednesday',
             'Thursday',
             'Friday',
-            'Saturday',
+            'Saturday'
           ])}
         </CardContent>
       </Card>
-      {/* <button onClick={handleAddPattern}>a+a</button> */}
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Pattern Explanation</DialogTitle>
         <DialogContent>
           <Typography>
-            The pattern consists of 5 space-separated fields:
-            - Minutes (0-59)
-            - Hours (0-23)
-            - Days of the month (1-31)
-            - Months (1-12)
-            - Days of the week (1-7, Sunday is 1)
-            Each field can contain a single value, a range of values (e.g., 1-3), or an asterisk (*) to represent all possible values.
-            Additionally, a step value can be added after a range using a slash (e.g., 1-3/2, which means every 2nd value within the range).
+            The pattern consists of 5 space-separated fields: - Minutes (0-59) -
+            Hours (0-23) - Days of the month (1-31) - Months (1-12) - Days of
+            the week (1-7, Sunday is 1) Each field can contain a single value, a
+            range of values (e.g., 1-3), or an asterisk (*) to represent all
+            possible values. Additionally, a step value can be added after a
+            range using a slash (e.g., 1-3/2, which means every 2nd value within
+            the range).
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button onClick={handleClose} color='primary'>
             Close
           </Button>
         </DialogActions>
       </Dialog>
     </div>
-  );
-};
+  )
+}
 
-export default AvailabilityPatternForm;
+export { AvailabilityPatternForm, type PatternType }

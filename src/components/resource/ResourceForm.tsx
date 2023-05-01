@@ -5,7 +5,7 @@ import React, {
   useEffect,
   useRef
 } from 'react'
-import { Form, Button, InputGroup } from 'react-bootstrap'
+import { Form, Button, InputGroup, FormLabel } from 'react-bootstrap'
 import {
   collection,
   query,
@@ -27,7 +27,12 @@ import {
   CardContent,
   ListItemText,
   List,
-  ListItem
+  ListItem,
+  Grid,
+  MenuItem,
+  Select,
+  TextField,
+  FormControl
 } from '@mui/material'
 import { blue } from '@mui/material/colors'
 import { Box } from '@mui/system'
@@ -35,7 +40,7 @@ import AddIcon from '@mui/icons-material/Add'
 import { getAuth } from 'firebase/auth'
 import { Container, IconButton } from '@mui/material'
 import { CheckBox, CheckBoxOutlineBlank, Delete } from '@mui/icons-material'
-import AvailabilityPatternForm from './AvailabilityPatternForm'
+import { AvailabilityPatternForm, PatternType} from './AvailabilityPatternForm'
 import { useAppSelector } from '../../app/hooks'
 import Alert from '@mui/material/Alert'
 import { AddressCollector } from '../location/AddressCollector'
@@ -65,6 +70,8 @@ interface ResourceFormProps {
     radius: number | null
     isPickup: boolean
     createdAt: Date
+    quota: number | null;
+    selectedField: keyof PatternType;
   }
   onSubmit: () => void
   editMode?: boolean
@@ -127,6 +134,8 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   const [radiusUnit, setRadiusUnit] = useState<'miles' | 'km'>('miles')
   const [isPickup, setIsPickup] = useState<boolean>(resource?.isPickup ?? false)
   const [currency, setCurrency] = useState<'USD' | 'EUR' | 'CAD' | 'MXN'>('USD')
+  const [quota, setQuota] = useState<number | null>(resource?.quota ?? null);
+  const [selectedField, setSelectedField] = useState<keyof PatternType>(resource?.selectedField ?? 'hours');
 
   const handleFormSubmit = async (e: FormEvent) => {
     console.log('handleFormSubmit')
@@ -182,7 +191,10 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
       lng: addressData.lng,
       radius: radius,
       isPickup,
-      createdAt: new Date()
+      createdAt: new Date(),
+      quota,
+      selectedField,
+
     })
     onSubmit()
   }
@@ -195,6 +207,28 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   //     console.error('Invalid pattern:', error);
   //   }
   // };
+  const getQuotaMinMax = (selectedField: keyof PatternType) => {
+    // Define your custom min and max values for each time period
+    const minMaxMap: Record<keyof PatternType, { min: number; max: number }> = {
+      minutes: { min: 1, max: 59 },
+      hours: { min: 1, max: 23 },
+      daysOfMonth: { min: 1, max: 31 },
+      months: { min: 1, max: 12 },
+      daysOfWeek: { min: 1, max: 7 }
+    }
+
+    return minMaxMap[selectedField] || { min: 1, max: 100 }
+  }
+  const onQuotaChange = (quotaValue: number, selectedField: keyof PatternType) => {
+    const { min, max } = getQuotaMinMax(selectedField)
+    if (quotaValue < min) {
+      setQuota(min)
+    } else if (quotaValue > max) {
+      setQuota(max)
+    } else {
+      setQuota(quotaValue)
+    }
+  }
 
   const handlePatternChange = (value: string) => {
     setCurrentPattern(value)
@@ -320,6 +354,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
       Array.from(e.target.files).filter(file => !file.name.startsWith('.'))
     )
   }
+  const fields = ['hours', 'daysOfMonth', 'months', 'daysOfWeek']
 
   return (
     <Container>
@@ -507,6 +542,9 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
               value={currentPattern}
               onChange={handlePatternChange}
               onAddPattern={addAvailabilityPattern}
+              fields={fields as (keyof PatternType)[]}
+              showInterval={false}
+              showAny={false}
             />
             <Button
               variant='contained'
@@ -524,6 +562,44 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
                 onChange={e => setAvailableResources(parseInt(e.target.value))}
               />
             </Form.Group>
+            <Box marginTop={2}>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <FormControl fullWidth>
+                  <FormLabel component='legend'>Quota</FormLabel>
+                  <TextField
+                    type='number'
+                    value={quota || 0}
+                    onChange={e => onQuotaChange(parseInt(e.target.value), selectedField)}
+                    fullWidth
+                    inputProps={{
+                      ...getQuotaMinMax(selectedField)
+                    }}
+                  />
+                </FormControl>
+              </Grid>
+              <Grid item xs={6}>
+                <FormControl fullWidth>
+                  <FormLabel component='legend'>Time Period</FormLabel>
+
+                  <Select
+                    value={selectedField || ''}
+                    onChange={e => {
+                      setSelectedField(e.target.value as keyof PatternType)
+                      onQuotaChange(quota?  quota : 0, e.target.value as keyof PatternType)
+                    }}
+                  >
+                    {fields?.map(field => (
+                      <MenuItem key={field} value={field}>
+                        {field}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </Box>
+
           </CardContent>
         </StyledCard>
 

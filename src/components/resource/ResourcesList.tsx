@@ -3,6 +3,7 @@ import { Container, Grid, Typography, Box } from "@mui/material";
 import { blue } from "@mui/material/colors";
 import ResourceCard from "./ResourceCard";
 import ResourceForm from "./ResourceForm";
+import { PatternType } from "./AvailabilityPatternForm";
 
 export interface ResourceType {
   id: string;
@@ -22,6 +23,9 @@ export interface ResourceType {
   radius: number | null;
   isPickup: boolean;
   createdAt: Date;
+  quota: number | null;
+  selectedField: keyof PatternType;
+
 }
 
 interface ResourcesListProps {
