@@ -25,7 +25,7 @@ export interface ResourceType {
   createdAt: Date;
   quota: number | null;
   selectedField: keyof PatternType;
-
+  promoted: boolean;
 }
 
 interface ResourcesListProps {

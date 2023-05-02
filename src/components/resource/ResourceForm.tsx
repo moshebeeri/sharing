@@ -32,7 +32,9 @@ import {
   MenuItem,
   Select,
   TextField,
-  FormControl
+  FormControl,
+  Checkbox,
+  FormControlLabel
 } from '@mui/material'
 import { blue } from '@mui/material/colors'
 import { Box } from '@mui/system'
@@ -40,7 +42,7 @@ import AddIcon from '@mui/icons-material/Add'
 import { getAuth } from 'firebase/auth'
 import { Container, IconButton } from '@mui/material'
 import { CheckBox, CheckBoxOutlineBlank, Delete } from '@mui/icons-material'
-import { AvailabilityPatternForm, PatternType} from './AvailabilityPatternForm'
+import { AvailabilityPatternForm, PatternType } from './AvailabilityPatternForm'
 import { useAppSelector } from '../../app/hooks'
 import Alert from '@mui/material/Alert'
 import { AddressCollector } from '../location/AddressCollector'
@@ -50,6 +52,7 @@ import { AvailabilityPattern } from './AvailabilityPattern'
 const db = getFirestore(firebaseApp)
 const storage = getStorage(firebaseApp)
 const auth = getAuth(firebaseApp)
+const userRole = 'admin'
 
 interface ResourceFormProps {
   resource?: {
@@ -70,8 +73,9 @@ interface ResourceFormProps {
     radius: number | null
     isPickup: boolean
     createdAt: Date
-    quota: number | null;
-    selectedField: keyof PatternType;
+    quota: number | null
+    selectedField: keyof PatternType
+    promoted: boolean
   }
   onSubmit: () => void
   editMode?: boolean
@@ -134,8 +138,11 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   const [radiusUnit, setRadiusUnit] = useState<'miles' | 'km'>('miles')
   const [isPickup, setIsPickup] = useState<boolean>(resource?.isPickup ?? false)
   const [currency, setCurrency] = useState<'USD' | 'EUR' | 'CAD' | 'MXN'>('USD')
-  const [quota, setQuota] = useState<number | null>(resource?.quota ?? null);
-  const [selectedField, setSelectedField] = useState<keyof PatternType>(resource?.selectedField ?? 'hours');
+  const [quota, setQuota] = useState<number | null>(resource?.quota ?? null)
+  const [selectedField, setSelectedField] = useState<keyof PatternType>(
+    resource?.selectedField ?? 'months'
+  )
+  const [promoted, setPromoted] = useState(resource?.promoted ?? false)
 
   const handleFormSubmit = async (e: FormEvent) => {
     console.log('handleFormSubmit')
@@ -194,7 +201,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
       createdAt: new Date(),
       quota,
       selectedField,
-
+      promoted
     })
     onSubmit()
   }
@@ -219,7 +226,10 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
 
     return minMaxMap[selectedField] || { min: 1, max: 100 }
   }
-  const onQuotaChange = (quotaValue: number, selectedField: keyof PatternType) => {
+  const onQuotaChange = (
+    quotaValue: number,
+    selectedField: keyof PatternType
+  ) => {
     const { min, max } = getQuotaMinMax(selectedField)
     if (quotaValue < min) {
       setQuota(min)
@@ -474,8 +484,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
                 onLocationChange={(address, position) =>
                   setAddressData({ ...position, address })
                 }
-              />
-              {' '}
+              />{' '}
             </Form.Group>
 
             <Form.Group className='mb-3' controlId='isPickup'>
@@ -563,43 +572,47 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
               />
             </Form.Group>
             <Box marginTop={2}>
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <FormControl fullWidth>
-                  <FormLabel component='legend'>Quota</FormLabel>
-                  <TextField
-                    type='number'
-                    value={quota || 0}
-                    onChange={e => onQuotaChange(parseInt(e.target.value), selectedField)}
-                    fullWidth
-                    inputProps={{
-                      ...getQuotaMinMax(selectedField)
-                    }}
-                  />
-                </FormControl>
-              </Grid>
-              <Grid item xs={6}>
-                <FormControl fullWidth>
-                  <FormLabel component='legend'>Time Period</FormLabel>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <FormControl fullWidth>
+                    <FormLabel component='legend'>Quota</FormLabel>
+                    <TextField
+                      type='number'
+                      value={quota || 0}
+                      onChange={e =>
+                        onQuotaChange(parseInt(e.target.value), selectedField)
+                      }
+                      fullWidth
+                      inputProps={{
+                        ...getQuotaMinMax(selectedField)
+                      }}
+                    />
+                  </FormControl>
+                </Grid>
+                <Grid item xs={6}>
+                  <FormControl fullWidth>
+                    <FormLabel component='legend'>Time Period</FormLabel>
 
-                  <Select
-                    value={selectedField || ''}
-                    onChange={e => {
-                      setSelectedField(e.target.value as keyof PatternType)
-                      onQuotaChange(quota?  quota : 0, e.target.value as keyof PatternType)
-                    }}
-                  >
-                    {fields?.map(field => (
-                      <MenuItem key={field} value={field}>
-                        {field}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                    <Select
+                      value={selectedField || ''}
+                      onChange={e => {
+                        setSelectedField(e.target.value as keyof PatternType)
+                        onQuotaChange(
+                          quota ? quota : 0,
+                          e.target.value as keyof PatternType
+                        )
+                      }}
+                    >
+                      {fields?.map(field => (
+                        <MenuItem key={field} value={field}>
+                          {field}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
               </Grid>
-            </Grid>
-          </Box>
-
+            </Box>
           </CardContent>
         </StyledCard>
 
@@ -672,7 +685,18 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
             </Form.Group>
           </CardContent>
         </StyledCard>
-
+        {userRole === 'admin' && (
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={promoted}
+                onChange={e => setPromoted(e.target.checked)}
+                color="primary"
+              />
+            }
+            label="Promote this resource"
+          />
+        )}
         {availabilityPatternError && (
           <Alert severity='error' style={{ marginTop: 16 }}>
             {availabilityPatternError}
