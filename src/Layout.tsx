@@ -14,8 +14,19 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
+import { styled } from '@mui/system';
 
-export const auth = getAuth(firebaseApp)
+
+const auth = getAuth(firebaseApp)
+
+const ShraitImg = styled('img')({
+  height: '70px',
+  display: 'none',
+  marginRight: '8px',
+  '@media (min-width: 768px)': {
+    display: 'inline',
+  },
+});
 
 interface LayoutProps {
   children: ReactNode;
@@ -84,12 +95,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   }
 
+
+
+
   return (
     <>
     <AppBar position="static">
       <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+          <Toolbar disableGutters>
+            <a href="/" id="home" >
+              <ShraitImg src="https://firebasestorage.googleapis.com/v0/b/share-hobby.appspot.com/o/shareit-small.png?alt=media&token=1ebdbb6b-d7cf-47e6-b0ac-d7374bd3c974" alt="Shreit Icon" />
+            </a>
           <Typography
             variant="h6"
             noWrap
@@ -105,7 +121,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               textDecoration: 'none',
             }}
           >
-            LOGO
+            SHARE
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -159,7 +175,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             </Menu>
           </Box>
-          <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+            <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
           <Typography
             variant="h5"
             noWrap
@@ -176,7 +192,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               textDecoration: 'none',
             }}
           >
-            LOGO
+            SHARE
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {[

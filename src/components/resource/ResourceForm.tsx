@@ -48,6 +48,8 @@ import Alert from '@mui/material/Alert'
 import { AddressCollector } from '../location/AddressCollector'
 import { styled, Theme } from '@mui/system'
 import { AvailabilityPattern } from './AvailabilityPattern'
+import {PriceTag, PricingModel } from '../xmui/PriceTag';
+import { ResourceType } from './ResourcesList'
 
 const db = getFirestore(firebaseApp)
 const storage = getStorage(firebaseApp)
@@ -55,28 +57,7 @@ const auth = getAuth(firebaseApp)
 const userRole = 'admin'
 
 interface ResourceFormProps {
-  resource?: {
-    id: string
-    title: string
-    description: string
-    price: number
-    availability: string[]
-    images: string[]
-    primaryImageIndex: number
-    availableResources: number
-    isGroupClosed: boolean
-    resourceGroupName: string
-    videos: string[]
-    address: string
-    lat: number
-    lng: number
-    radius: number | null
-    isPickup: boolean
-    createdAt: Date
-    quota: number | null
-    selectedField: keyof PatternType
-    promoted: boolean
-  }
+  resource?: ResourceType;
   onSubmit: () => void
   editMode?: boolean
 }
@@ -87,6 +68,12 @@ const StyledCard = styled(Card)`
   padding: 15px;
   border: 1px solid #ced4da;
 `
+const defaultPrice: PricingModel = {
+  price: 0,
+  period: 'year',
+  billingFrequency: 'monthly',
+  currency: 'USD'
+};
 
 const ResourceForm: React.FC<ResourceFormProps> = ({
   resource,
@@ -98,7 +85,10 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   )
   const [title, setTitle] = useState(resource?.title ?? '')
   const [description, setDescription] = useState(resource?.description ?? '')
-  const [price, setPrice] = useState(resource?.price ?? 0)
+
+  const [price, setPrice] = useState<PricingModel>(resource?.price ?? defaultPrice);
+  const [currency, setCurrency] = useState<'USD' | 'EUR' | 'CAD' | 'MXN'>('USD')
+
   const [availabilityPatterns, setAvailabilityPatterns] = useState<
     AvailabilityPattern[]
   >(
@@ -127,7 +117,14 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   )
   const [videoFiles, setVideoFiles] = useState<File[]>([])
   const [resourceGroupNames, setResourceGroupNames] = useState<string[]>([])
+
+  const [resourceCategoryName, setResourceCategoryName] = useState(
+    resource?.resourceCategoryName ?? ''
+  )
+  const [resourceCategoryNames, setCategoryGroupNames] = useState<string[]>([])
   const [addNewResourceGroup, setAddNewResourceGroup] = useState(false)
+  const [addNewResourceCategory, setAddNewResourceCategory] = useState(false)
+
   const [formValid, setFormValid] = useState(false)
   const [addressData, setAddressData] = useState({
     address: resource?.address ?? '',
@@ -137,7 +134,6 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   const [radius, setRadius] = useState<number | null>(resource?.radius ?? null)
   const [radiusUnit, setRadiusUnit] = useState<'miles' | 'km'>('miles')
   const [isPickup, setIsPickup] = useState<boolean>(resource?.isPickup ?? false)
-  const [currency, setCurrency] = useState<'USD' | 'EUR' | 'CAD' | 'MXN'>('USD')
   const [quota, setQuota] = useState<number | null>(resource?.quota ?? null)
   const [selectedField, setSelectedField] = useState<keyof PatternType>(
     resource?.selectedField ?? 'months'
@@ -180,9 +176,16 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
         userId
       })
     }
-
+    if (addNewResourceCategory) {
+      // Save the new resource group to Firestore with the user ID
+      await addDoc(collection(db, 'resourceCategories'), {
+        name: resourceCategoryName,
+        userId
+      })
+    }
     await setDoc(resourceRef, {
       userId,
+      resourceCategoryName,
       title,
       description,
       price,
@@ -205,15 +208,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     })
     onSubmit()
   }
-  // const handleAddPattern = (value: string) => {
-  //   try {
-  //     const pattern = new AvailabilityPattern(value);
-  //     setAvailabilityPatterns([...availabilityPatterns, pattern]);
-  //     setCurrentPattern('');
-  //   } catch (error) {
-  //     console.error('Invalid pattern:', error);
-  //   }
-  // };
+
   const getQuotaMinMax = (selectedField: keyof PatternType) => {
     // Define your custom min and max values for each time period
     const minMaxMap: Record<keyof PatternType, { min: number; max: number }> = {
@@ -377,6 +372,43 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
         <StyledCard>
           <CardContent>
             <Typography variant='h5'>General Information</Typography>
+
+            <Form.Group className='mb-3' controlId='resourceCategoryName'>
+              <Form.Label>Resource Category Name</Form.Label>
+
+              {addNewResourceCategory ? (
+                <Form.Control
+                  type='text'
+                  placeholder='Enter Category Name'
+                  value={resourceCategoryName}
+                  onChange={e => setResourceCategoryName(e.target.value)}
+                />
+              ) : (
+                <Form.Select
+                  value={resourceCategoryName}
+                  onChange={e => {
+                    const selectedValue = e.target.value
+                    if (selectedValue === 'add-new') {
+                      setAddNewResourceCategory(true)
+                      setResourceCategoryName('')
+                    } else {
+                      setResourceCategoryName(selectedValue)
+                    }
+                  }}
+                >
+                  <option value='' disabled>
+                    Select a Resource Category
+                  </option>
+                  {resourceCategoryNames.map((name, index) => (
+                    <option key={index} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                  <option value='add-new'>Add New Resource Category</option>
+                </Form.Select>
+              )}
+            </Form.Group>
+
             <Form.Group className='mb-3' controlId='title'>
               <Form.Label>Title *</Form.Label>
 
@@ -402,7 +434,12 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
 
             <Form.Group className='mb-3'>
               <Form.Label>Price *</Form.Label>
-              <InputGroup>
+              <PriceTag
+          value={price}
+          onChange={(newPrice) => setPrice(newPrice)}
+        />
+
+              {/* <InputGroup>
                 <Form.Control
                   type='number'
                   placeholder='Enter price'
@@ -423,7 +460,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
                   <option value='CAD'>CAD</option>
                   <option value='MXN'>MXN</option>
                 </Form.Select>
-              </InputGroup>
+              </InputGroup> */}
             </Form.Group>
             <Form.Group className='mb-3' controlId='isGroupClosed'>
               <Form.Check

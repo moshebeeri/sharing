@@ -4,18 +4,20 @@ import { blue } from "@mui/material/colors";
 import ResourceCard from "./ResourceCard";
 import ResourceForm from "./ResourceForm";
 import { PatternType } from "./AvailabilityPatternForm";
+import { PricingModel } from "../xmui/PriceTag";
 
 export interface ResourceType {
   id: string;
   title: string;
   description: string;
-  price: number;
+  price: PricingModel;
   availability: string[];
   images: string[];
   primaryImageIndex: number;
   availableResources: number;
   isGroupClosed: boolean;
   resourceGroupName: string;
+  resourceCategoryName: string;
   videos: string[];
   address: string;
   lat: number;
