@@ -124,7 +124,7 @@ class AvailabilityManager {
       return new Date(date.getFullYear(), date.getMonth(), date.getDate())
     } else if (this.quotaPeriod === 'week') {
       const dayOfWeek = date.getDay()
-      const startOfWeek = new Date(
+      const startOfWeek: Date = new Date(
         date.getFullYear(),
         date.getMonth(),
         date.getDate() - dayOfWeek
@@ -136,7 +136,6 @@ class AvailabilityManager {
       return new Date(date.getFullYear(), 0, 1)
     }
   }
-
   private getPeriodEnd (date: Date): Date {
     if (this.quotaPeriod === 'day') {
       return new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1)

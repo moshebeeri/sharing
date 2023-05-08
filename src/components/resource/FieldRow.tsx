@@ -1,5 +1,5 @@
 import React from 'react'
-import { Grid, Typography, FormControlLabel, Checkbox } from '@mui/material'
+import { Grid, Typography, FormControlLabel, Checkbox, Button } from '@mui/material'
 import MinMaxEnumInput from './MinMaxEnumInput'
 
 interface FieldRowProps {
@@ -8,16 +8,16 @@ interface FieldRowProps {
   fromValue: string
   toValue: string
   intervalValue: string
-  anyValue: boolean
+  resetValue: boolean
   onFromChange: (value: string) => void
   onToChange: (value: string) => void
   onIntervalChange: (value: string) => void
-  onAnyChange: (checked: boolean) => void
+  onReset: (reset: boolean) => void
   min?: number
   max?: number
   enumValues?: string[]
   showInterval: boolean
-  showAny: boolean
+  showReset: boolean
 }
 
 const FieldRow: React.FC<FieldRowProps> = ({
@@ -26,19 +26,19 @@ const FieldRow: React.FC<FieldRowProps> = ({
   fromValue,
   toValue,
   intervalValue,
-  anyValue,
+  resetValue,
   onFromChange,
   onToChange,
   onIntervalChange,
-  onAnyChange,
+  onReset,
   min,
   max,
   enumValues,
   showInterval = false,
-  showAny = false,
+  showReset = false,
 }) => {
-  const handleAnyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onAnyChange(event.target.checked)
+  const handleReset = (event: React.MouseEvent<HTMLButtonElement>) => {
+    onReset(true)
   }
 
   return (
@@ -83,19 +83,17 @@ const FieldRow: React.FC<FieldRowProps> = ({
           )
         }
         {
-          showAny && (
-
+          showReset && (
             <Grid item xs={1}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={anyValue}
-                    onChange={handleAnyChange}
-                    name={name}
-                  />
-                }
-                label='Any'
-              />
+              <Button
+                variant='outlined'
+                color='primary'
+                onClick={handleReset}
+                size='small'
+                sx={{ padding: '5px' }}
+              >
+                Reset
+              </Button>
             </Grid>
           )
         }

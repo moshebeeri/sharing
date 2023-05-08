@@ -589,8 +589,8 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
               onChange={handlePatternChange}
               onAddPattern={addAvailabilityPattern}
               fields={fields as (keyof PatternType)[]}
-              showInterval={false}
-              showAny={false}
+              showInterval={true}
+              showReset={true}
             />
             <Button
               variant='contained'

@@ -38,7 +38,7 @@ interface AvailabilityPatternFormProps {
   onAddPattern: (value: string) => void
   fields?: (keyof PatternType)[]
   showInterval?: boolean
-  showAny?: boolean
+  showReset?: boolean
 }
 
 const parsePatternString = (patternString: string) => {
@@ -58,7 +58,7 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
   fields,
   onAddPattern,
   showInterval = false,
-  showAny = false
+  showReset = false
 }) => {
   const dispatch = useAppDispatch()
 
@@ -70,7 +70,7 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
     months: '*',
     daysOfWeek: '*'
   })
-  const [anyOptions, setAnyOptions] = useState({
+  const [ResetOptions, setResetOptions] = useState({
     minutes: false,
     hours: false,
     daysOfMonth: false,
@@ -170,10 +170,10 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
     handleChange(updatedValue, name)
   }
 
-  const handleAnyChange = (checked: boolean, name: keyof typeof pattern) => {
-    setAnyOptions({ ...anyOptions, [name]: checked })
-    setPattern({ ...pattern, [name]: checked ? '*' : '' })
-    if (checked) {
+  const handleResetChange = (reset: boolean, name: keyof typeof pattern) => {
+    setResetOptions({ ...ResetOptions, [name]: reset })
+    setPattern({ ...pattern, [name]: reset ? '*' : '' })
+    if (reset) {
       onChange(Object.values({ ...pattern, [name]: '*' }).join(' '))
     }
   }
@@ -227,16 +227,16 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
         fromValue={getFromValue(name)}
         toValue={getToValue(name)}
         intervalValue={getIntervalValue(name)}
-        anyValue={anyOptions[name]}
+        resetValue={ResetOptions[name]}
         onFromChange={value => handleFieldChange(value, name, 'from')}
         onToChange={value => handleFieldChange(value, name, 'to')}
         onIntervalChange={value => handleFieldChange(value, name, 'interval')}
-        onAnyChange={checked => handleAnyChange(checked, name)}
+        onReset={(reset) => handleResetChange(reset, name)}
         min={min}
         max={max}
         enumValues={enumValues}
         showInterval={showInterval}
-        showAny={showAny}
+        showReset={showReset}
       />
     )
   }
