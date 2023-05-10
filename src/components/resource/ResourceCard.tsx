@@ -1,63 +1,95 @@
-import React from 'react'
+// ResourceCard.tsx
+import React from 'react';
 import {
   Card,
-  CardMedia,
   CardContent,
+  CardMedia,
   Typography,
+  Grid,
+  Box,
   IconButton,
-  Box
-} from '@mui/material'
-import { ResourceType } from './ResourcesList'
-import EditIcon from '@mui/icons-material/Edit'
-import { PriceTag } from '../xmui/PriceTag'
+} from '@mui/material';
+import { ResourceType } from '../resource/ResourcesList';
+import { Link } from 'react-router-dom';
+import { Rating } from '../xmui/Rating';
+import { PriceTag } from '../xmui/PriceTag';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 interface ResourceCardProps {
-  resource: ResourceType
-  onEdit: () => void
+  resource: ResourceType;
+  rating: number;
+  sharerImageUrl: string;
 }
 
-const ResourceCard: React.FC<ResourceCardProps> = ({ resource, onEdit }) => {
-  const { title, description, price, availability, images, primaryImageIndex } =
-    resource
+const ResourceCard: React.FC<ResourceCardProps> = ({
+  resource,
+  rating,
+  sharerImageUrl,
+}) => {
+  const [liked, setLiked] = React.useState(false);
+
+  function truncateDescription(description: string, maxLength: number = 50): string {
+    if (description.length > maxLength) {
+      return description.slice(0, maxLength) + '...'
+    }
+    return description
+  }
+
+  const handleLikeToggle = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setLiked(!liked);
+  };
 
   return (
-    <Card sx={{ maxWidth: 345, m: 2 }}>
-      <CardMedia
-        component='img'
-        height='140'
-        image={images[primaryImageIndex]}
-        alt={title}
-      />
-      <CardContent>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}
-        >
-          <Typography variant='h5' component='div'>
-            {title}
-          </Typography>
-          <IconButton color='primary' onClick={onEdit}>
-            <EditIcon />
-          </IconButton>
-        </Box>
-        <Typography variant='body2' color='text.secondary'>
-          {description}
-        </Typography>
-        <Typography variant='body2' color='text.secondary'>
-          <PriceTag
-            value={resource.price}
-            displayOnly
+    <Grid item xs={12} sm={6} md={4} lg={3}>
+      <Link
+        to={`/resource-view/${resource.id}`}
+        style={{ textDecoration: 'none' }}
+      >
+        <Card sx={{ maxWidth: 345, position: 'relative' }}>
+          <CardMedia
+            component="img"
+            height="250"
+            image={resource.images[resource.primaryImageIndex]}
+            alt={resource.title}
           />
-        </Typography>
-        <Typography variant='body2' color='text.secondary'>
-          Availability: {availability}
-        </Typography>
-      </CardContent>
-    </Card>
+          <Box sx={{ position: 'absolute', top: 8, left: 8 }}>
+            <Rating value={rating} readOnly sharerImageUrl={sharerImageUrl} />
+          </Box>
+          <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
+            <IconButton
+              edge="end"
+              color="inherit"
+              onClick={handleLikeToggle}
+            >
+              {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+            </IconButton>
+          </Box>
+          <CardContent>
+            <Typography
+              variant="h5"
+              component="div"
+              noWrap
+              sx={{ fontWeight: 'bold', marginBottom: 1 }}
+            >
+              {resource.title}
+            </Typography>
+            <Typography variant="subtitle1" sx={{ marginBottom: 1 }}>
+              <PriceTag value={resource.price} displayOnly />
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+            >
+              {truncateDescription(resource.description)}
+            </Typography>
+          </CardContent>
+        </Card>
+      </Link>
+    </Grid>
   )
 }
 
-export default ResourceCard
+export { ResourceCard };

@@ -12,7 +12,7 @@ interface ResourceCardProps {
   }
 }
 
-const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
+const TopResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
   const { title, description, price, images, primaryImageIndex } = resource
   const primaryImageUrl = images?.[primaryImageIndex]
 
@@ -41,4 +41,4 @@ const ResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
   )
 }
 
-export default ResourceCard
+export default TopResourceCard

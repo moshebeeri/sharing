@@ -11,13 +11,14 @@ import {
   AddressCollector, Position
 } from "./components/location/AddressCollector";
 import ResourceView from "./components/resource/ResourceView";
-import SearchResults from "./components/homepage/SearchResults";
+import SearchResults from "./components/search/SearchResults";
+import MainPage from "./components/main/MainPage";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Layout children={<EventsViewer />} />} />
+        <Route path="/" element={<Layout children={<MainPage />} />} />
         <Route path="/login" element={<Layout children={<Login />} />} />
         <Route path="/schedule" element={<Layout children={<ScheduleView />} />} />
         <Route path="/resources" element={<Layout children={<ResourcesView />} />} />

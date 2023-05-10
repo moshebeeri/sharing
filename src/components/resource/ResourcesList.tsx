@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Container, Grid, Typography, Box } from "@mui/material";
 import { blue } from "@mui/material/colors";
-import ResourceCard from "./ResourceCard";
+import ResourceFormCard from "./ResourceFormCard";
 import ResourceForm from "./ResourceForm";
 import { PatternType } from "./AvailabilityPatternForm";
 import { PricingModel } from "../xmui/PriceTag";
@@ -60,7 +60,7 @@ const ResourcesList: React.FC<ResourcesListProps> = ({ resources, title = "My Re
       <Grid container spacing={2}>
         {resources.map((resource) => (
           <Grid item key={resource.id} xs={12} sm={6} md={4} lg={3}>
-            <ResourceCard
+            <ResourceFormCard
               resource={resource}
               onEdit={() => setSelectedResource(resource)}
             />

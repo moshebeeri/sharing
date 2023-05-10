@@ -1,4 +1,3 @@
-// Rating.tsx
 import React from 'react';
 import { Rating as MuiRating, Avatar, Box } from '@mui/material';
 
@@ -34,6 +33,8 @@ const Rating: React.FC<RatingProps> = ({ value, readOnly = false, sharerImageUrl
         value={value}
         readOnly={readOnly}
         onChange={handleChange}
+        max={1}
+        precision={0.2}
       />
     </Box>
   );

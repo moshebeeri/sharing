@@ -71,7 +71,7 @@ const StyledCard = styled(Card)`
 const defaultPrice: PricingModel = {
   price: 0,
   period: 'year',
-  billingFrequency: 'monthly',
+  billingFrequency: 'month',
   currency: 'USD'
 };
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useMediaQuery, useTheme } from '@mui/material';
-import ResourceCard from './ResourceCard';
+import TopResourceCard from './TopResourceCard';
 import { getFirestore } from '@firebase/firestore'
 import { firebaseApp } from '../../config/firebase'
 
@@ -45,7 +45,7 @@ const TopResources: React.FC = () => {
     <div>
       <h2>Top Resources</h2>
       {topResources.map(resource => (
-        <ResourceCard key={resource.id} resource={resource} />
+        <TopResourceCard key={resource.id} resource={resource} />
       ))}
     </div>
   );

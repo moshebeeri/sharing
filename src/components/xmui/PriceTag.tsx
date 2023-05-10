@@ -4,8 +4,8 @@ import { TextField, Grid, Typography, MenuItem } from '@mui/material';
 
 type PricingModel = {
   price: number;
-  period: 'month' | 'year' | 'week';
-  billingFrequency: 'monthly' | 'weekly';
+  period: 'month' | 'year' | '2 years' | '3 years' | '4 years' | '5 years';
+  billingFrequency: 'month' | 'year';
   currency: 'USD' | 'EUR' | 'CAD' | 'MXN';
 };
 
@@ -47,7 +47,7 @@ const PriceTag: React.FC<PriceTagProps> = ({
   if (displayOnly) {
     return (
       <Typography>
-        {getCurrencySymbol(currency)}{price}/{billingFrequency} - (for a {period})
+        {getCurrencySymbol(currency)}{price} {billingFrequency} -  {period}
       </Typography>
     );
   }
@@ -89,7 +89,7 @@ const PriceTag: React.FC<PriceTagProps> = ({
           select
           value={period}
           onChange={(e) => {
-            setPeriod(e.target.value as 'month' | 'year' | 'week');
+            setPeriod(e.target.value as 'month' | 'year' | '2 years' | '3 years' | '4 years' | '5 years');
             handleChange();
           }}
           fullWidth
@@ -105,7 +105,7 @@ const PriceTag: React.FC<PriceTagProps> = ({
           select
           value={billingFrequency}
           onChange={(e) => {
-            setBillingFrequency(e.target.value as 'monthly' | 'weekly');
+            setBillingFrequency(e.target.value as 'month' | 'year');
             handleChange();
           }}
           fullWidth
