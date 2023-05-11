@@ -435,9 +435,9 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
             <Form.Group className='mb-3'>
               <Form.Label>Price *</Form.Label>
               <PriceTag
-          value={price}
-          onChange={(newPrice) => setPrice(newPrice)}
-        />
+                value={price}
+                onChange={(newPrice) => setPrice(newPrice)}
+              />
 
               {/* <InputGroup>
                 <Form.Control

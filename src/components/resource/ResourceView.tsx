@@ -46,7 +46,17 @@ interface ResourceViewParams extends Params {
 
 const ResourceView: React.FC = () => {
   const { resourceId } = useParams<ResourceViewParams>()
-  const [resource, setResource] = useState<ResourceType | null>(null)
+  const [resource, setResource] = useState<ResourceType>()
+
+  const primaryImageUrl = resource?.images?.[resource?.primaryImageIndex]
+
+  function reorderImages(images: string[], primaryIndex: number) {
+    if (primaryIndex === 0) {
+      return images;
+    }
+    return [images[primaryIndex], ...images.slice(0, primaryIndex), ...images.slice(primaryIndex + 1)];
+  }
+  const orderedImages = reorderImages(resource?.images || [], resource?.primaryImageIndex || 0);
 
   useEffect(() => {
     const fetchResource = async () => {
@@ -78,13 +88,6 @@ const ResourceView: React.FC = () => {
   const center = {
     lat: resource.lat,
     lng: resource.lng
-  }
-
-  // Custom styles for the carousel navigation arrows
-  const carouselArrowStyles = {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    color: 'white',
-    borderRadius: '50%'
   }
 
   return (
@@ -148,7 +151,7 @@ const ResourceView: React.FC = () => {
               )
             }
           >
-        {resource.images.map((image: string, index: number) => (
+        {orderedImages.map((image: string, index: number) => (
               <img
                 key={index}
                 src={image}

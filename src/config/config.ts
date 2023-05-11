@@ -2,6 +2,7 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/database';
+import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBaAXSnxiCu-sdNVZ0QIc2ldWTrINNLllQ",
@@ -14,8 +15,10 @@ const firebaseConfig = {
 }; //this is where your firebase app values you copied will go
 
 
-firebase.initializeApp(firebaseConfig);
+const app = firebase.initializeApp(firebaseConfig);
 
+
+export const analytics = getAnalytics(app);
 export const auth = firebase.auth();
 export const database = firebase.database();
 

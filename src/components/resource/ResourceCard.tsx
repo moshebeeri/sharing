@@ -61,7 +61,7 @@ const ResourceCard: React.FC<ResourceCardProps> = ({
           <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
             <IconButton
               edge="end"
-              color="inherit"
+              color="primary"
               onClick={handleLikeToggle}
             >
               {liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}

@@ -20,6 +20,7 @@
     }
   ],
   "hosting": {
+    "site": "sharing-it-now",
     "public": "public",
     "ignore": [
       "firebase.json",
