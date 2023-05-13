@@ -18,7 +18,6 @@ import { styled } from '@mui/system';
 import { useSelector } from "react-redux";
 import { RootState } from "./app/store";
 
-
 const auth = getAuth(firebaseApp)
 
 const ShraitImg = styled('img')({
@@ -105,7 +104,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Container maxWidth="xl">
           <Toolbar disableGutters>
             <a href="/" id="home" >
-              <ShraitImg src="https://firebasestorage.googleapis.com/v0/b/share-hobby.appspot.com/o/shareit-small.png?alt=media&token=1ebdbb6b-d7cf-47e6-b0ac-d7374bd3c974" alt="Shreit Icon" />
+              <ShraitImg src="ShareEz-logo.png" alt="Shreit Icon" />
             </a>
           <Typography
             variant="h6"
@@ -207,7 +206,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   {page.name}
                 </Button>
               )),
-              isLoading && user ? null : (
+              !isLoading && user ? null : (
                 <Button
                   key='login'
                   onClick={handleCloseNavMenu}
