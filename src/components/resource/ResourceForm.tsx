@@ -306,6 +306,10 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     await deleteDoc(doc(db, 'resources', resource.id))
     onSubmit()
   }
+  const handleCancel = async () => {
+    if (!resource) return
+    onSubmit()
+  }
 
   const handleImageSelect = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return
@@ -744,12 +748,15 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
           <Button variant='primary' type='submit' disabled={false}>
             {resource ? 'Update' : 'Add'} Resource
           </Button>
-        </div>
-        {resource && (
-          <Button variant='danger' onClick={handleDelete} className='ms-3'>
-            Delete Resource
+          <Button variant='secondary' disabled={false} onClick={handleCancel} className='ms-3'>
+            Cancel
           </Button>
-        )}
+          {resource && (
+            <Button variant='danger' onClick={handleDelete} className='ms-3'>
+              Delete Resource
+            </Button>
+          )}
+        </div>
       </Form>
     </Container>
   )

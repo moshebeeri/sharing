@@ -5,26 +5,41 @@ import {
   CardContent,
   Typography,
   IconButton,
-  Box
+  Box,
+  Tooltip
 } from '@mui/material'
 import { ResourceType } from './ResourcesList'
 import EditIcon from '@mui/icons-material/Edit'
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import { PriceTag } from '../xmui/PriceTag'
 
 interface ResourceCardProps {
   resource: ResourceType
   onEdit: () => void
+  onEditSubscribers: () => void
 }
 
-const ResourceFormCard: React.FC<ResourceCardProps> = ({ resource, onEdit }) => {
+const ResourceFormCard: React.FC<ResourceCardProps> = ({
+  resource,
+  onEdit,
+  onEditSubscribers: onEditSubscribers
+}) => {
   const { title, description, price, availability, images, primaryImageIndex } =
     resource
-
+  function truncateDescription (
+    description: string,
+    maxLength: number = 100
+  ): string {
+    if (description.length > maxLength) {
+      return description.slice(0, maxLength) + '...'
+    }
+    return description
+  }
   return (
     <Card sx={{ maxWidth: 345, m: 2 }}>
       <CardMedia
         component='img'
-        height='140'
+        height='250'
         image={images[primaryImageIndex]}
         alt={title}
       />
@@ -36,23 +51,30 @@ const ResourceFormCard: React.FC<ResourceCardProps> = ({ resource, onEdit }) => 
             alignItems: 'center'
           }}
         >
-          <Typography variant='h5' component='div'>
+          <Typography variant='h5' component='div' sx={{ m: 2 }}>
             {title}
           </Typography>
-          <IconButton color='primary' onClick={onEdit}>
-            <EditIcon />
-          </IconButton>
         </Box>
-        <Typography variant='body2' color='text.secondary'>
-          {description}
+        <Box>
+        <Tooltip title='Edit Resource'>
+            <IconButton color='primary' onClick={onEdit}>
+              <EditIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title='Edit Subscribers'>
+            <IconButton color='primary' onClick={onEditSubscribers}>
+              <PeopleAltIcon />
+            </IconButton>
+          </Tooltip>
+
+        </Box>
+        <Typography variant='body2' color='text.secondary' sx={{ m: 2 }}>
+          {truncateDescription(description)}
         </Typography>
-        <Typography variant='body2' color='text.secondary'>
-          <PriceTag
-            value={resource.price}
-            displayOnly
-          />
+        <Typography variant='body2' color='text.secondary' sx={{ m: 2 }}>
+          <PriceTag value={resource.price} displayOnly />
         </Typography>
-        <Typography variant='body2' color='text.secondary'>
+        <Typography variant='body2' color='text.secondary' sx={{ m: 2 }}>
           Availability: {availability}
         </Typography>
       </CardContent>

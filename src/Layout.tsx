@@ -38,7 +38,7 @@ const pages = [
   { name: 'Activities', href: '/activities' },
   { name: 'Resources', href: '/resources' }
 ];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+const settings = ['Profile', 'Account', 'Dashboard'];
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, isLoading } = useSelector((state: RootState) => state.auth);
@@ -96,6 +96,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     } else {
       return '';
     }
+  }
+
+  const showLogout = () => {
+    return !isLoading && user;
   }
 
   return (
@@ -246,11 +250,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={() => handleSettingsMenuClickes(setting)}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
+              {[
+                ...settings.map((setting) => (
+                  <MenuItem key={setting} onClick={() => handleSettingsMenuClickes(setting)}>
+                    <Typography textAlign="center">{setting}</Typography>
+                  </MenuItem>
+
+                )),
+                !isLoading && user ? (
+                  <MenuItem key='mobile-Logout' onClick={() => handleSettingsMenuClickes('Logout')} href='/logout'>
+                    <Typography textAlign="center">Logout</Typography>
+                  </MenuItem>
+                ) : (
+                  <MenuItem key='mobile-Login' onClick={handleCloseNavMenu} href='/login'>
+                    <Typography textAlign="center">Login</Typography>
+                  </MenuItem>
+                )
+              ]}
             </Menu>
           </Box>
         </Toolbar>

@@ -5,6 +5,7 @@ import ResourceForm from "./ResourceForm";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import { firebaseApp } from '../../config/firebase';
 import { getFirestore } from '@firebase/firestore';
+import SearchBox from "../main/SearchBox";
 
 
 const db = getFirestore(firebaseApp);
@@ -51,14 +52,16 @@ const ResourcesView: React.FC = () => {
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs value={selectedOption} onChange={handleTabChange}>
           <Tab label="My Resources" />
-          <Tab label="Find Resource" />
           <Tab label="Add Resource" />
+          <Tab label="Find Resource" />
+
         </Tabs>
       </Box>
 
       {selectedOption === 0 && <ResourcesList resources={resources} title="My Resources" />}
-      {selectedOption === 1 && <ResourcesList resources={resources} title="Find Resource"/>}
-      {selectedOption === 2 && <ResourceForm onSubmit={onResourceFormSubmit} />}
+      {selectedOption === 1 && <ResourceForm onSubmit={onResourceFormSubmit} />}
+      {selectedOption === 2 && <SearchBox/>}
+
     </Container>
   );
 };

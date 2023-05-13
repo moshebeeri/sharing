@@ -5,6 +5,7 @@ import ResourceFormCard from "./ResourceFormCard";
 import ResourceForm from "./ResourceForm";
 import { PatternType } from "./AvailabilityPatternForm";
 import { PricingModel } from "../xmui/PriceTag";
+import { useNavigate } from 'react-router-dom';
 
 export interface ResourceType {
   id: string;
@@ -37,18 +38,25 @@ interface ResourcesListProps {
 
 const ResourcesList: React.FC<ResourcesListProps> = ({ resources, title = "My Resources" }) => {
   const [selectedResource, setSelectedResource] = useState<ResourceType | null>(null);
+  const navigate = useNavigate();
 
   const handleFormSubmit = () => {
     // Refresh the resources list and close the form
     setSelectedResource(null);
   };
 
+  function onEditSubscribers(resource: ResourceType): void {
+    navigate(`/subscribers/${resource.id}`);
+  }
+
   return (
     <Container>
       <Box mt={4} textAlign="center">
-        <Typography variant="h4" gutterBottom style={{ color: blue[500] }}>
-          {title}
-        </Typography>
+        {selectedResource ? null :
+          <Typography variant="h4" gutterBottom style={{ color: blue[500] }}>
+            {title}
+          </Typography>
+        }
       </Box>
       {selectedResource && (
         <ResourceForm
@@ -59,10 +67,11 @@ const ResourcesList: React.FC<ResourcesListProps> = ({ resources, title = "My Re
       )}
       <Grid container spacing={2}>
         {resources.map((resource) => (
-          <Grid item key={resource.id} xs={12} sm={6} md={4} lg={3}>
+          <Grid item key={resource.id} xs={12} sm={12} md={6} lg={4}>
             <ResourceFormCard
               resource={resource}
               onEdit={() => setSelectedResource(resource)}
+              onEditSubscribers={() => onEditSubscribers(resource)}
             />
           </Grid>
         ))}

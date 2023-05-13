@@ -22,6 +22,7 @@ interface ResourceCardProps {
   sharerImageUrl: string;
 }
 
+
 const ResourceCard: React.FC<ResourceCardProps> = ({
   resource,
   rating,

@@ -24,7 +24,14 @@ function App() {
     dispatch(userLoading());
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      dispatch(userLoaded(user));
+      console.log("onAuthStateChanged called " + user);
+      if (user) {
+        // User is signed in
+        dispatch(userLoaded({userId: user.uid, userName: user.displayName, userEmail: user.email}));
+      } else {
+        // User is signed out
+        dispatch(userLoaded(null));
+      }
     });
 
     return () => unsubscribe();
