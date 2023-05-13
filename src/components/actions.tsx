@@ -1,3 +1,5 @@
+import { User } from 'firebase/auth';
+
 interface ScheduleResourceAction {
   type: typeof SCHEDULE_RESOURCE;
   user: string;
@@ -32,4 +34,19 @@ export const scheduleResource = (
 export const deleteSchedule = (user: string): DeleteScheduleAction => ({
   type: DELETE_SCHEDULE,
   user,
+});
+
+
+// User Auth state
+
+export const USER_LOADING = 'USER_LOADING';
+export const USER_LOADED = 'USER_LOADED';
+
+export const userLoading = () => ({
+  type: USER_LOADING,
+});
+
+export const userLoaded = (user: User) => ({
+  type: USER_LOADED,
+  payload: user,
 });

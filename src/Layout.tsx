@@ -15,6 +15,8 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { styled } from '@mui/system';
+import { useSelector } from "react-redux";
+import { RootState } from "./app/store";
 
 
 const auth = getAuth(firebaseApp)
@@ -34,20 +36,22 @@ interface LayoutProps {
 
 const pages = [
   { name: 'Schedule', href: '/schedule' },
-  { name: 'Activities', href: '/' },
+  { name: 'Activities', href: '/activities' },
   { name: 'Resources', href: '/resources' }
 ];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, isLoading } = useSelector((state: RootState) => state.auth);
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+
+  const [ authUser, setAuthUser] = useState<User | null>(null);
 
   useEffect(() => {
     const authInstance = getAuth();
     const unsubscribe = onAuthStateChanged(authInstance, (firebaseUser) => {
-      setUser(firebaseUser);
+      setAuthUser(firebaseUser);
     });
 
     return () => {
@@ -94,9 +98,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       return '';
     }
   }
-
-
-
 
   return (
     <>
@@ -160,7 +161,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <Typography textAlign="center">{page.name}</Typography>
                   </MenuItem>
                 )),
-                user ? (
+                !isLoading && user ? (
                   <MenuItem key='mobile-Logout' onClick={handleCloseNavMenu} href='/logout'>
                     <Typography textAlign="center">Logout</Typography>
                   </MenuItem>
@@ -206,7 +207,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   {page.name}
                 </Button>
               )),
-              user ? null : (
+              isLoading && user ? null : (
                 <Button
                   key='login'
                   onClick={handleCloseNavMenu}
@@ -223,10 +224,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                 <Avatar
-                  alt={user?.displayName ?? 'Remy Sharp'}
-                  src={user?.photoURL ?? ''}
+                  alt={authUser?.displayName ?? ''}
+                  src={authUser?.photoURL ?? ''}
                 >
-                  {!user || !user.photoURL ? getUserInitials(user?.displayName ?? '', user?.email ?? '') : null}
+                  {!user || !authUser?.photoURL ? getUserInitials(authUser?.displayName ?? '', authUser?.email ?? '') : null}
                 </Avatar>
               </IconButton>
             </Tooltip>

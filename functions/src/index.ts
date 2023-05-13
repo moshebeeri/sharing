@@ -9,6 +9,10 @@
 
 import {onRequest} from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
+import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
+
+admin.initializeApp();
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
@@ -18,3 +22,13 @@ export const helloWorld = onRequest((request, response) => {
   response.send("Hello from Firebase!");
 });
 
+
+export const createUserRecord = functions.auth.user().onCreate((user) => {
+  const userRef = admin.firestore().collection('subscribers').doc(user.uid);
+  return userRef.set({
+    userRef: userRef,
+    userId: user.uid,
+    email: user.email,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+});

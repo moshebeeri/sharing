@@ -34,6 +34,17 @@ const ResourcesView: React.FC = () => {
   const onResourceFormSubmit = () => {
     setSelectedOption(0);
   };
+  const temp = () => {
+    const resourcesQuery = query(collection(db, "resources"), orderBy("title"));
+    onSnapshot(resourcesQuery, (snapshot) => {
+      const resourcesData: ResourceType[] = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as ResourceType[];
+      setResources(resourcesData);
+    });
+  }
+
 
   return (
     <Container>
