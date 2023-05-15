@@ -307,7 +307,6 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     onSubmit()
   }
   const handleCancel = async () => {
-    if (!resource) return
     onSubmit()
   }
 
@@ -442,29 +441,6 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
                 value={price}
                 onChange={(newPrice) => setPrice(newPrice)}
               />
-
-              {/* <InputGroup>
-                <Form.Control
-                  type='number'
-                  placeholder='Enter price'
-                  value={price || 0}
-                  onChange={e =>
-                    setPrice(e.target.value ? parseFloat(e.target.value) : 0)
-                  }
-                  required
-                />
-                <Form.Select
-                  value={currency}
-                  onChange={e =>
-                    setCurrency(e.target.value as 'USD' | 'EUR' | 'CAD' | 'MXN')
-                  }
-                >
-                  <option value='USD'>USD</option>
-                  <option value='EUR'>EUR</option>
-                  <option value='CAD'>CAD</option>
-                  <option value='MXN'>MXN</option>
-                </Form.Select>
-              </InputGroup> */}
             </Form.Group>
             <Form.Group className='mb-3' controlId='isGroupClosed'>
               <Form.Check

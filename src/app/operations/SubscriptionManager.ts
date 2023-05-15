@@ -13,12 +13,13 @@ import {
 } from 'firebase/firestore';
 import { firebaseApp } from '../../config/firebase';
 import { getAuth } from 'firebase/auth';
+import { Invite } from '../../components/types';
 
 const db = getFirestore(firebaseApp);
 const auth = getAuth(firebaseApp);
 
 interface SubscriberType {
-  id: string;
+  userId: string;
   // add other properties as needed
 }
 
@@ -44,7 +45,7 @@ class SubscriptionManager {
     // Query for all subscriptions for this user
     const subscriptionRef = query(
       collection(db, 'subscriptions'),
-      where('subscriberId', '==', subscriber.id)
+      where('subscriberId', '==', subscriber.userId)
     );
     const subscriptionSnapshot = await getDocs(subscriptionRef);
 
@@ -61,7 +62,7 @@ class SubscriptionManager {
   public async subscribe(subscriber: SubscriberType, resource: ResourceType): Promise<ResourceType[]> {
     const subscriptionRef = doc(collection(db, 'subscriptions'));
     const newSubscription = {
-      subscriberId: subscriber.id,
+      subscriberId: subscriber.userId,
       resourceId: resource.id,
       createdAt: new Date(),
       // add more fields as needed
@@ -73,7 +74,7 @@ class SubscriptionManager {
   public async unsubscribe(subscriber: SubscriberType, resource: ResourceType): Promise<ResourceType[]> {
     const subscriptionRef = query(
       collection(db, 'subscriptions'),
-      where('subscriberId', '==', subscriber.id),
+      where('subscriberId', '==', subscriber.userId),
       where('resourceId', '==', resource.id)
     );
     const subscriptionSnapshot = await getDocs(subscriptionRef);
@@ -86,7 +87,7 @@ class SubscriptionManager {
   public async subscribedResources(subscriber: SubscriberType): Promise<ResourceType[]> {
     const subscriptionRef = query(
       collection(db, 'subscriptions'),
-      where('subscriberId', '==', subscriber.id)
+      where('subscriberId', '==', subscriber.userId)
     );
     const subscriptionSnapshot = await getDocs(subscriptionRef);
     const resources: ResourceType[] = [];
@@ -103,7 +104,7 @@ class SubscriptionManager {
     // For simplicity, let's assume that there's a 'dueDate' field in each subscription document.
     const subscriptionRef = query(
       collection(db, 'subscriptions'),
-      where('subscriberId', '==', subscriber.id),
+      where('subscriberId', '==', subscriber.userId),
       where('dueDate', '<=', new Date())
     );
     const subscriptionSnapshot = await getDocs(subscriptionRef);
@@ -125,7 +126,7 @@ class SubscriptionManager {
     // Query for subscriptions with a renewalDate before or on one month from now
     const subscriptionRef = query(
       collection(db, 'subscriptions'),
-      where('subscriberId', '==', subscriber.id),
+      where('subscriberId', '==', subscriber.userId),
       where('renewalDate', '<=', oneMonthFromNow)
     );
     const subscriptionSnapshot = await getDocs(subscriptionRef);
@@ -138,6 +139,30 @@ class SubscriptionManager {
       resources.push(resourceSnap.data() as ResourceType);
     });
     return resources;
+  }
+
+  public async invite(resourceId: string, email: string) {
+    const invitesCollection = collection(db, 'invites');
+    const docRef = doc(invitesCollection);
+    await setDoc(docRef, {
+      userId: this.userId,
+      resourceId,
+      email,
+    });
+  }
+
+  public async getInvites(userId: string): Promise<Invite[]> {
+    const db = getFirestore();
+    const querySnapshot = await getDocs(query(collection(db, "invites"), where("userId", "==", userId)));
+    const invites: Invite[] = [];
+    querySnapshot.forEach((doc) => {
+      invites.push(doc.data() as Invite);
+    });
+    return invites;
+  }
+
+  public async uploadDocuments(documents: File[]) {
+    throw new Error('Method not implemented.');
   }
 }
 

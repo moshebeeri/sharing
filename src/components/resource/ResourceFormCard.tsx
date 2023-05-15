@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react';
 import {
   Card,
   CardMedia,
@@ -12,6 +12,8 @@ import { ResourceType } from './ResourcesList'
 import EditIcon from '@mui/icons-material/Edit'
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import { PriceTag } from '../xmui/PriceTag'
+import { Modal } from 'react-bootstrap';
+import InviteForm from '../../app/operations/InviteForm';
 
 interface ResourceCardProps {
   resource: ResourceType
@@ -26,6 +28,10 @@ const ResourceFormCard: React.FC<ResourceCardProps> = ({
 }) => {
   const { title, description, price, availability, images, primaryImageIndex } =
     resource
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
   function truncateDescription (
     description: string,
     maxLength: number = 100
@@ -57,17 +63,25 @@ const ResourceFormCard: React.FC<ResourceCardProps> = ({
         </Box>
         <Box>
         <Tooltip title='Edit Resource'>
-            <IconButton color='primary' onClick={onEdit}>
-              <EditIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title='Edit Subscribers'>
-            <IconButton color='primary' onClick={onEditSubscribers}>
-              <PeopleAltIcon />
-            </IconButton>
-          </Tooltip>
+          <IconButton color='primary' onClick={onEdit}>
+            <EditIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title='Edit Subscribers'>
+          <IconButton color='primary' onClick={handleShow}>
+            <PeopleAltIcon />
+          </IconButton>
+        </Tooltip>
+        <Modal show={show} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Invite a User</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <InviteForm resourceId={resource.id} />
+          </Modal.Body>
+        </Modal>
+      </Box>
 
-        </Box>
         <Typography variant='body2' color='text.secondary' sx={{ m: 2 }}>
           {truncateDescription(description)}
         </Typography>

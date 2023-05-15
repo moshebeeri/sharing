@@ -2,31 +2,40 @@ import React, { useState, useEffect } from "react";
 import { Container, Box, Tab, Tabs } from "@mui/material";
 import ResourcesList, { ResourceType } from "./ResourcesList";
 import ResourceForm from "./ResourceForm";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import { getFirestore, collection, query, orderBy, onSnapshot, where } from "firebase/firestore";
 import { firebaseApp } from '../../config/firebase';
-import { getFirestore } from '@firebase/firestore';
 import SearchBox from "../main/SearchBox";
+import { getAuth } from 'firebase/auth';
 
 
 const db = getFirestore(firebaseApp);
 const ResourcesView: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState(0);
   const [resources, setResources] = useState<ResourceType[]>([]);
+  const auth = getAuth();
 
   useEffect(() => {
-    const resourcesQuery = query(collection(db, "resources"), orderBy("title"));
-    const unsubscribe = onSnapshot(resourcesQuery, (snapshot) => {
-      const resourcesData: ResourceType[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as ResourceType[];
-      setResources(resourcesData);
-    });
+    const userId = auth.currentUser?.uid; // Fetch the current user's ID
+    if (userId) { // Only run the query if a user is signed in
+      console.log("userId: " + userId);
+      const resourcesQuery = query(
+        collection(db, "resources"),
+        where("userId", "==", userId), // Filter where userId matches the logged-in user
+        orderBy("createdAt", "desc") // Order by createdAt in descending order
+      );
+      const unsubscribe = onSnapshot(resourcesQuery, (snapshot) => {
+        const resourcesData: ResourceType[] = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as ResourceType[];
+        setResources(resourcesData);
+      });
 
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+      return () => {
+        unsubscribe();
+      };
+    }
+  }, [auth.currentUser]); // Rerun effect when the current user changes
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setSelectedOption(newValue);
@@ -35,17 +44,6 @@ const ResourcesView: React.FC = () => {
   const onResourceFormSubmit = () => {
     setSelectedOption(0);
   };
-  const temp = () => {
-    const resourcesQuery = query(collection(db, "resources"), orderBy("title"));
-    onSnapshot(resourcesQuery, (snapshot) => {
-      const resourcesData: ResourceType[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as ResourceType[];
-      setResources(resourcesData);
-    });
-  }
-
 
   return (
     <Container>

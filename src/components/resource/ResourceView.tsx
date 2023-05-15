@@ -25,6 +25,7 @@ import { Carousel } from 'react-responsive-carousel'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
 import Geocode from 'react-geocode'
 import { CSSProperties, useEffect, useState } from 'react'
+import { Link, useNavigate } from "react-router-dom";
 
 const db = getFirestore(firebaseApp)
 const googleMapsApiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ''
@@ -47,6 +48,7 @@ interface ResourceViewParams extends Params {
 const ResourceView: React.FC = () => {
   const { resourceId } = useParams<ResourceViewParams>()
   const [resource, setResource] = useState<ResourceType>()
+  const navigate = useNavigate();
 
   const primaryImageUrl = resource?.images?.[resource?.primaryImageIndex]
 
@@ -89,6 +91,9 @@ const ResourceView: React.FC = () => {
     lat: resource.lat,
     lng: resource.lng
   }
+  const handleBuy = () => {
+    navigate(`/buy/${resource.id}`);
+  }
 
   return (
     <Container>
@@ -99,7 +104,7 @@ const ResourceView: React.FC = () => {
         mb={2}
       >
         <Typography variant='h4'>{resource.title}</Typography>
-        <Button variant='contained' color='primary'>
+        <Button variant='contained' color='primary' onClick={handleBuy}>
           Buy Your Share Now
         </Button>
       </Box>
@@ -206,7 +211,7 @@ const ResourceView: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} style={{ textAlign: 'center', marginTop: 30 }}>
-          <Button variant='contained' color='primary'>
+          <Button variant='contained' color='primary' onClick={handleBuy}>
             Buy Your Share Now
           </Button>
         </Grid>

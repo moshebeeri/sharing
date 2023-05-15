@@ -57,3 +57,8 @@ export class Event implements CalendarEvent {
 }
 
 
+export  interface Invite {
+  userId: string;
+  resourceId: string;
+  email: string;
+}

@@ -14,6 +14,7 @@ import SearchResults from "./components/search/SearchResults";
 import MainPage from "./components/main/MainPage";
 import Layout from "./Layout";
 import { getAuth } from 'firebase/auth';
+import SubscriptionForm from "./app/operations/SubscriptionForm";
 
 
 function App() {
@@ -49,6 +50,8 @@ function App() {
         <Route path="/resource-view/:resourceId" element={<Layout children={<ResourceView />} />} />
         <Route path="/search" element={<Layout children={<SearchResults />} />} />
         <Route path="/checkout" element={<Layout children={<SearchResults />} />} />
+        <Route path="/buy/:resourceId" element={<Layout children={<SubscriptionForm />} />} />
+
       </Routes>
     </BrowserRouter>
   );
