@@ -16,14 +16,14 @@ import MapIcon from '@mui/icons-material/Map'
 import SearchIcon from '@mui/icons-material/Search'
 import CloseIcon from '@mui/icons-material/Close'
 import { styled } from '@mui/system'
-import SearchBox from './SearchBox'
 import TopResources from '../top_resources/TopResources'
+import Search from '../search/Search'
 
 export default function MainPage () {
 
   return (
     <Container>
-      <SearchBox />
+      <Search embedded/>
       <Card>
         <TopResources />
       </Card>

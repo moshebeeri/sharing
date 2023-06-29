@@ -4,8 +4,8 @@ import ResourcesList, { ResourceType } from "./ResourcesList";
 import ResourceForm from "./ResourceForm";
 import { getFirestore, collection, query, orderBy, onSnapshot, where } from "firebase/firestore";
 import { firebaseApp } from '../../config/firebase';
-import SearchBox from "../main/SearchBox";
 import { getAuth } from 'firebase/auth';
+import Search from "../search/Search";
 
 
 const db = getFirestore(firebaseApp);
@@ -58,7 +58,7 @@ const ResourcesView: React.FC = () => {
 
       {selectedOption === 0 && <ResourcesList resources={resources} title="My Resources" />}
       {selectedOption === 1 && <ResourceForm onSubmit={onResourceFormSubmit} />}
-      {selectedOption === 2 && <SearchBox/>}
+      {selectedOption === 2 && <Search/>}
 
     </Container>
   );

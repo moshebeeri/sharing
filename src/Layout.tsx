@@ -36,7 +36,8 @@ interface LayoutProps {
 const pages = [
   { name: 'Schedule', href: '/schedule' },
   { name: 'Activities', href: '/activities' },
-  { name: 'Resources', href: '/resources' }
+  { name: 'Resources', href: '/resources' },
+  { name: 'Search', href: '/search' }
 ];
 const settings = ['Profile', 'Account', 'Dashboard'];
 

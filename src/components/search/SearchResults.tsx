@@ -6,25 +6,13 @@ import { firebaseApp } from '../../config/firebase'
 import { getFirestore } from '@firebase/firestore'
 import { ResourceCard } from '../resource/ResourceCard'
 
-const db = getFirestore(firebaseApp)
 
-const SearchResults: React.FC = () => {
-  const [resources, setResources] = useState<ResourceType[]>([])
+type SearchResultsProps = {
+  resources: ResourceType[];
+};
 
-  useEffect(() => {
-    const resourcesQuery = query(collection(db, 'resources'), orderBy('title'))
-    const unsubscribe = onSnapshot(resourcesQuery, (snapshot) => {
-      const resourcesData: ResourceType[] = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as ResourceType[]
-      setResources(resourcesData)
-    })
+const SearchResults: React.FC<SearchResultsProps> = ({resources}) => {
 
-    return () => {
-      unsubscribe()
-    }
-  }, [])
 
   return (
     <Grid container spacing={2}>

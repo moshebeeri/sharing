@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Container,
   Form,
@@ -17,6 +17,13 @@ import SearchIcon from '@mui/icons-material/Search'
 import CloseIcon from '@mui/icons-material/Close'
 import { styled } from '@mui/system'
 // import { Circle } from '@react-google-maps/api';
+import { useNavigate } from "react-router-dom";
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
+import { firebaseApp } from '../../config/firebase'
+import { getFirestore } from '@firebase/firestore'
+import { ResourceType } from '../resource/ResourcesList'
+
+const db = getFirestore(firebaseApp)
 
 const LargerMapIcon = styled(MapIcon)({
   fontSize: '2rem'
@@ -48,7 +55,7 @@ const RadiusWrapper = styled('div')({
   gap: '10px' // Adds space between label and input
 })
 
-type SearchType = {
+export type SearchType = {
   category: string
   radius: number
   location: string
@@ -59,14 +66,33 @@ const SearchInput = styled(Form.Control)({
   height: '38px'
 })
 
-export default function SearchBox () {
+type SearchBoxProps = {
+  search: SearchType;
+  setSearch: React.Dispatch<React.SetStateAction<SearchType>>;
+  embedded?: boolean;
+  handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+
+};
+
+export default function SearchBox({handleSubmit, embedded, search, setSearch}: SearchBoxProps) {
   const [open, setOpen] = useState(false)
-  const [search, setSearch] = useState<SearchType>({
-    category: '',
-    radius: 0,
-    location: '',
-    freeText: ''
-  })
+  const [resources, setResources] = useState<ResourceType[]>([])
+
+
+  useEffect(() => {
+    const resourcesQuery = query(collection(db, 'resources'), orderBy('title'))
+    const unsubscribe = onSnapshot(resourcesQuery, (snapshot) => {
+      const resourcesData: ResourceType[] = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as ResourceType[]
+      setResources(resourcesData)
+    })
+
+    return () => {
+      unsubscribe()
+    }
+  }, [search]) // Perform the search whenever the search state changes
 
   const [addressData, setAddressData] = useState({
     address: '',
@@ -82,6 +108,7 @@ export default function SearchBox () {
   }
 
   const unit = useMetric() ? 'km' : 'mile'
+  const navigate = useNavigate();
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -109,10 +136,14 @@ export default function SearchBox () {
     setSearch(prevState => ({ ...prevState, [name]: value }))
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    console.log(search)
-  }
+  // const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  //   event.preventDefault()
+  //   if (embedded) {
+  //     //navigate(`/search`)
+  //     history.push('/search', { search });
+  //   } else {
+  //   }
+  // }
 
   return (
     <Container>
