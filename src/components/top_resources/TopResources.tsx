@@ -4,6 +4,7 @@ import { Grid, Typography, useMediaQuery, useTheme } from '@mui/material'
 import TopResourceCard from './TopResourceCard'
 import { getFirestore } from '@firebase/firestore'
 import { firebaseApp } from '../../config/firebase'
+import { ResourceCard } from '../resource/ResourceCard'
 
 const db = getFirestore(firebaseApp)
 
@@ -46,9 +47,7 @@ const TopResources: React.FC = () => {
       <div>
         <Grid container spacing={2}>
           {topResources.map(resource => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={resource.id}>
-              <TopResourceCard key={resource.id} resource={resource} />
-            </Grid>
+            <TopResourceCard key={resource.id} resource={resource} />
           ))}
         </Grid>
       </div>

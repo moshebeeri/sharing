@@ -48,12 +48,9 @@ function App() {
         <Route path="/resource-view/:resourceId" element={<Layout children={<ResourceView />} />} />
         <Route path="/search" element={<Layout children={<Search />} />} />
         <Route path="/buy/:resourceId" element={<Layout children={<SubscriptionForm />} />} />
-
       </Routes>
     </BrowserRouter>
   );
 }
 
 export default App;
-
-
