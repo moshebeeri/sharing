@@ -211,7 +211,7 @@ const ResourceView: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} style={{ textAlign: 'center', marginTop: 30 }}>
-          <Button variant='contained' color='primary' onClick={handleBuy}>
+          <Button variant='contained' color='primary' onClick={handleBuy} style={{ position: 'relative', zIndex: 2 }}>
             Buy Your Share Now
           </Button>
         </Grid>

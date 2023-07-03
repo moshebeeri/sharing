@@ -3,7 +3,6 @@ import {
   collection,
   query,
   getDocs,
-  addDoc,
   deleteDoc,
   where,
   getFirestore,
@@ -59,23 +58,22 @@ class SubscriptionManager {
     return resources;
   }
 
-  public async subscribe(subscriber: SubscriberType, resource: ResourceType): Promise<ResourceType[]> {
+  public async subscribe(subscriber: SubscriberType, resourceId: string): Promise<ResourceType[]> {
     const subscriptionRef = doc(collection(db, 'subscriptions'));
     const newSubscription = {
       subscriberId: subscriber.userId,
-      resourceId: resource.id,
+      resourceId: resourceId,
       createdAt: new Date(),
-      // add more fields as needed
     };
     await setDoc(subscriptionRef, newSubscription);
     return this.subscribedResources(subscriber);
   }
 
-  public async unsubscribe(subscriber: SubscriberType, resource: ResourceType): Promise<ResourceType[]> {
+  public async unsubscribe(subscriber: SubscriberType, resourceId: string): Promise<ResourceType[]> {
     const subscriptionRef = query(
       collection(db, 'subscriptions'),
       where('subscriberId', '==', subscriber.userId),
-      where('resourceId', '==', resource.id)
+      where('resourceId', '==', resourceId)
     );
     const subscriptionSnapshot = await getDocs(subscriptionRef);
     subscriptionSnapshot.forEach(async (doc) => {
@@ -152,17 +150,21 @@ class SubscriptionManager {
   }
 
   public async getInvites(userId: string): Promise<Invite[]> {
-    const db = getFirestore();
-    const querySnapshot = await getDocs(query(collection(db, "invites"), where("userId", "==", userId)));
     const invites: Invite[] = [];
+
+    console.log("getInvites for userId=" + userId)
+    const q = query(collection(db, "invites"), where("userId", "==", userId))
+    const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
+      console.log(doc.data());
       invites.push(doc.data() as Invite);
     });
+    console.log(invites.length + " invites found");
     return invites;
   }
 
   public async uploadDocuments(documents: File[]) {
-    throw new Error('Method not implemented.');
+    //throw new Error('Method not implemented.');
   }
 }
 

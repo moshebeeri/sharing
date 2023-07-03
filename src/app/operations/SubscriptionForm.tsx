@@ -73,7 +73,7 @@ const SubscriptionForm = () => {
   }
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setIsLoading(true)
+    setIsLoading(false) //TODO: should be true
 
     if (!user || !resource) {
       // handle case where user or resource is not available
@@ -92,7 +92,7 @@ const SubscriptionForm = () => {
     if (resource.isGroupClosed) {
       const invites: Invite[] = await subscriptionManager.getInvites(user.uid)
       const isInvited = invites.some(
-        (invite: Invite) => invite.resourceId === resource.id
+        (invite: Invite) => invite.resourceId === resourceId
       )
       if (!isInvited) {
         alert('You must be invited to subscribe to this resource')
@@ -102,12 +102,11 @@ const SubscriptionForm = () => {
     }
 
     // Handle document upload
-    const uploadedDocuments = await subscriptionManager.uploadDocuments(
-      documents
-    )
+    const uploadedDocuments = await subscriptionManager.uploadDocuments(documents)
 
     // Subscribe the user to the resource
-    await subscriptionManager.subscribe({ userId: user.uid }, resource)
+    console.log('Subscribing user to resource ' + resource)
+    await subscriptionManager.subscribe({ userId: user.uid }, resourceId || '' )
 
     setIsLoading(false)
   }
