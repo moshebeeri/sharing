@@ -16,6 +16,9 @@ import { SubscriptionManager } from './SubscriptionManager'
 import { ResourceCard } from '../../components/resource/ResourceCard'
 import { ResourceType } from '../../components/resource/ResourcesList'
 import { Invite } from '../../components/types'
+import { Link, useNavigate } from "react-router-dom";
+import { addToCart } from '../../features/cart/cartSlice';
+import { useDispatch } from 'react-redux';
 
 const SubscriptionForm = () => {
   const { resourceId } = useParams<{ resourceId: string }>()
@@ -26,6 +29,8 @@ const SubscriptionForm = () => {
   const MAX_DOCS = 5
   const MAX_SIZE = 200 * 1024 * 1024
   const subscriptionManager = new SubscriptionManager()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchResource = async () => {
@@ -73,7 +78,7 @@ const SubscriptionForm = () => {
   }
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setIsLoading(false) //TODO: should be true
+    setIsLoading(true)
 
     if (!user || !resource) {
       // handle case where user or resource is not available
@@ -83,8 +88,9 @@ const SubscriptionForm = () => {
 
     // Check if the resource is free
     if (resource.price.price !== 0) {
-      alert('Only free resources can be subscribed to')
+      dispatch(addToCart(resource));
       setIsLoading(false)
+      navigate(`/checkout`);
       return
     }
 
