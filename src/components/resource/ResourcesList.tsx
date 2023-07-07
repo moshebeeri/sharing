@@ -34,9 +34,10 @@ export interface ResourceType {
 interface ResourcesListProps {
   resources: ResourceType[];
   title?: string;
+  onDelete?: (resource: ResourceType) => void;
 }
 
-const ResourcesList: React.FC<ResourcesListProps> = ({ resources, title = "My Resources" }) => {
+const ResourcesList: React.FC<ResourcesListProps> = ({ resources, title = "My Resources", onDelete }) => {
   const [selectedResource, setSelectedResource] = useState<ResourceType | null>(null);
   const navigate = useNavigate();
 
@@ -72,6 +73,7 @@ const ResourcesList: React.FC<ResourcesListProps> = ({ resources, title = "My Re
               resource={resource}
               onEdit={() => setSelectedResource(resource)}
               onEditSubscribers={() => onEditSubscribers(resource)}
+              onDelete={onDelete ? () => onDelete(resource) : undefined}
             />
           </Grid>
         ))}

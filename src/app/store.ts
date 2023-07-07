@@ -2,7 +2,7 @@ import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import counterReducer from '../features/counter/counterSlice';
 import availabilityPatternReducer from '../features/availabilityPattern/availabilityPatternSlice';
 import authReducer from '../features/auth/authSlice';
-import cartReducer from '../features/cart/cartSlice'; // import the new cart reducer
+import cartReducer from '../features/cart/cartSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +10,11 @@ export const store = configureStore({
     availabilityPattern: availabilityPatternReducer,
     auth: authReducer,
     cart: cartReducer,
+    // concider using if redux-persist get too many errors
+    // middleware: getDefaultMiddleware({
+    //   serializableCheck: false,
+    // }),
+
   },
 });
 

@@ -14,17 +14,19 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt'
 import { PriceTag } from '../xmui/PriceTag'
 import { Modal } from 'react-bootstrap';
 import InviteForm from '../../app/operations/InviteForm';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 interface ResourceCardProps {
   resource: ResourceType
   onEdit: () => void
   onEditSubscribers: () => void
+  onDelete?: () => void
 }
 
 const ResourceFormCard: React.FC<ResourceCardProps> = ({
   resource,
   onEdit,
-  onEditSubscribers: onEditSubscribers
+  onDelete,
 }) => {
   const { title, description, price, availability, images, primaryImageIndex } =
     resource
@@ -60,18 +62,24 @@ const ResourceFormCard: React.FC<ResourceCardProps> = ({
           <Typography variant='h5' component='div' sx={{ m: 2 }}>
             {title}
           </Typography>
-        </Box>
-        <Box>
-        <Tooltip title='Edit Resource'>
-          <IconButton color='primary' onClick={onEdit}>
-            <EditIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title='Edit Subscribers'>
-          <IconButton color='primary' onClick={handleShow}>
-            <PeopleAltIcon />
-          </IconButton>
-        </Tooltip>
+
+        {onDelete?  (
+            <Tooltip title='Remove from Cart'>
+              <IconButton color='primary' onClick={onDelete}>
+                <DeleteForeverIcon />
+              </IconButton>
+            </Tooltip>
+          ): (
+          <><Tooltip title='Edit Resource'>
+              <IconButton color='primary' onClick={onEdit}>
+                <EditIcon />
+              </IconButton>
+            </Tooltip><Tooltip title='Edit Subscribers'>
+                <IconButton color='primary' onClick={handleShow}>
+                  <PeopleAltIcon />
+                </IconButton>
+              </Tooltip></>
+        )}
         <Modal show={show} onHide={handleClose}>
           <Modal.Header closeButton>
             <Modal.Title>Invite a User</Modal.Title>

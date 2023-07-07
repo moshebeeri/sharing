@@ -63,7 +63,7 @@ class SubscriptionManager {
     const newSubscription = {
       subscriberId: subscriber.userId,
       resourceId: resourceId,
-      createdAt: new Date(),
+      createdAt: Date.now(),
     };
     await setDoc(subscriptionRef, newSubscription);
     return this.subscribedResources(subscriber);

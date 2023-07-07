@@ -17,8 +17,10 @@ import { ResourceCard } from '../../components/resource/ResourceCard'
 import { ResourceType } from '../../components/resource/ResourcesList'
 import { Invite } from '../../components/types'
 import { Link, useNavigate } from "react-router-dom";
-import { addToCart } from '../../features/cart/cartSlice';
+import { actions as cartActions } from '../../features/cart/cartSlice';
+
 import { useDispatch } from 'react-redux';
+import { addResourceToCart, loadCartItems, saveCartItems } from './cartStorage'
 
 const SubscriptionForm = () => {
   const { resourceId } = useParams<{ resourceId: string }>()
@@ -30,7 +32,6 @@ const SubscriptionForm = () => {
   const MAX_SIZE = 200 * 1024 * 1024
   const subscriptionManager = new SubscriptionManager()
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchResource = async () => {
@@ -62,6 +63,18 @@ const SubscriptionForm = () => {
     }
   }, [])
 
+  // const [cartItems, setCartItems] = useState<ResourceType[]>([]);
+  // useEffect(() => {
+  //   const fetchCartItems = async () => {
+  //     if (user) {
+  //       const items = await loadCartItems(user.uid);
+  //       setCartItems(items);
+  //     }
+  //   };
+
+  //   fetchCartItems();
+  // }, [user]);
+
   const handleDocumentUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (files) {
@@ -88,7 +101,7 @@ const SubscriptionForm = () => {
 
     // Check if the resource is free
     if (resource.price.price !== 0) {
-      dispatch(addToCart(resource));
+      await addResourceToCart(user.uid, resource);
       setIsLoading(false)
       navigate(`/checkout`);
       return
