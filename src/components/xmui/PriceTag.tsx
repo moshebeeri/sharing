@@ -46,9 +46,11 @@ const PriceTag: React.FC<PriceTagProps> = ({
 
   if (displayOnly) {
     return (
-      <Typography>
-        {getCurrencySymbol(currency)}{price} {billingFrequency} -  {period}
-      </Typography>
+      <div>
+        {/* <Typography> */}
+          {getCurrencySymbol(currency)}{price} {billingFrequency} -  {period}
+        {/* </Typography> */}
+      </div>
     );
   }
 

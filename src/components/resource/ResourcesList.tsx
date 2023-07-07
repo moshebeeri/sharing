@@ -67,8 +67,8 @@ const ResourcesList: React.FC<ResourcesListProps> = ({ resources, title = "My Re
         />
       )}
       <Grid container spacing={2}>
-        {resources.map((resource) => (
-          <Grid item key={resource.id} xs={12} sm={12} md={6} lg={4}>
+      {resources.map((resource, index) => (
+        <Grid item key={index} xs={12} sm={12} md={6} lg={4}>
             <ResourceFormCard
               resource={resource}
               onEdit={() => setSelectedResource(resource)}
