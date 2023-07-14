@@ -54,8 +54,6 @@ const Checkout = () => {
     loadItems();
   }, []);
 
-
-
   return (
     <Container>
       <Box display="flex" flexDirection="column" alignItems="center" bgcolor="lightblue" p={2} borderRadius={2} mb={3}>
