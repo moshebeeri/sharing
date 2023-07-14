@@ -13,17 +13,14 @@ import {
 import { firebaseApp } from '../../config/firebase';
 import { getAuth } from 'firebase/auth';
 import { Invite } from '../../components/types';
+import { ResourceType } from '../../components/resource/ResourcesList';
+import { PricingModel } from '../../components/xmui/PriceTag';
 
 const db = getFirestore(firebaseApp);
 const auth = getAuth(firebaseApp);
 
 interface SubscriberType {
   userId: string;
-  // add other properties as needed
-}
-
-interface ResourceType {
-  id: string;
   // add other properties as needed
 }
 
@@ -162,6 +159,34 @@ class SubscriptionManager {
     console.log(invites.length + " invites found");
     return invites;
   }
+
+  public async purchase(userId: string, resourceId: string, pricingModel: PricingModel): Promise<ResourceType[]> {
+    const purchaseRef = doc(collection(db, 'purchased'));
+    const newPurchase = {
+      userId: userId,
+      resourceId: resourceId,
+      pricingModel: pricingModel,
+      createdAt: Date.now(),
+    };
+    await setDoc(purchaseRef, newPurchase);
+    return this.purchasedResources(userId);
+  }
+  
+  public async purchasedResources(userId: string): Promise<ResourceType[]> {
+    const purchaseRef = query(
+      collection(db, 'purchased'),
+      where('userId', '==', userId)
+    )
+    const purchaseSnapshot = await getDocs(purchaseRef);
+    const resources: ResourceType[] = [];
+    purchaseSnapshot.forEach(async (resource) => {
+      const resourceRef = doc(db, 'resources', resource.data().resourceId);
+      const resourceSnap = await getDoc(resourceRef);
+      resources.push(resourceSnap.data() as ResourceType);
+    });
+    return resources;
+  }
+  
 
   public async uploadDocuments(documents: File[]) {
     //throw new Error('Method not implemented.');

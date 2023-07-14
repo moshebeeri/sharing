@@ -40,7 +40,9 @@ const SubscriptionForm = () => {
       const docSnap = await getDoc(docRef)
 
       if (docSnap.exists()) {
-        setResource(docSnap.data() as ResourceType)
+        const r: ResourceType = docSnap.data() as ResourceType;
+        r.id = resourceId || '';
+        setResource(r)
       } else {
         console.log('No such document!')
       }
@@ -101,9 +103,11 @@ const SubscriptionForm = () => {
 
     // Check if the resource is free
     if (resource.price.price !== 0) {
-      await addResourceToCart(user.uid, resource);
+      console.log("Check if the resource is payed and addResourceToCart:")
+      console.log(JSON.stringify(resource))
+      await addResourceToCart(user.uid, resource)
       setIsLoading(false)
-      navigate(`/checkout`);
+      navigate(`/checkout`)
       return
     }
 

@@ -3,10 +3,13 @@ import {
   getFirestore,
   doc,
   setDoc,
-  getDoc
+  getDoc,
+  collection,
+  addDoc
 } from 'firebase/firestore';
 import { firebaseApp } from '../../config/firebase';
 import { ResourceType } from '../../components/resource/ResourcesList';
+import { SubscriptionManager } from './SubscriptionManager';
 
 const db = getFirestore(firebaseApp);
 
@@ -48,6 +51,17 @@ export const removeResourceFromCart = async (userId: string, resourceId: string)
 };
 
 export const savePurchasedItems = async (userId: string, items: ResourceType[]) => {
-  const userPurchasedRef = doc(db, 'purchased', userId);
-  await setDoc(userPurchasedRef, { items });
+  const userPurchasedCollection = collection(db, 'users', userId, 'purchased');
+  const sm = new SubscriptionManager()
+
+  // Save each item as a separate document in the 'purchased' subcollection
+  for (const item of items) {
+    console.log(`savePurchasedItems resourceId: ${item.id}`)
+    await addDoc(userPurchasedCollection, {
+      resourceId: item.id,
+      pricingModel: item.price,
+    });
+    await sm.purchase(userId, item.id, item.price)
+
+  }
 };
