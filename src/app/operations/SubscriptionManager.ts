@@ -21,7 +21,6 @@ const auth = getAuth(firebaseApp);
 
 interface SubscriberType {
   userId: string;
-  // add other properties as needed
 }
 
 interface SubscriptionType {
@@ -193,4 +192,4 @@ class SubscriptionManager {
   }
 }
 
-export {SubscriptionManager}
+export { SubscriptionManager, type SubscriberType };

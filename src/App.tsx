@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { userLoading, userLoaded } from './features/auth/authSlice';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import {EventsViewer} from "./components/EventsViewer";
 import Login from "./components/Login";
 import ScheduleView from "./components/ScheduleView";
 import ResourcesView from "./components/resource/ResourcesView";
@@ -14,6 +13,7 @@ import { getAuth } from 'firebase/auth';
 import SubscriptionForm from "./app/operations/SubscriptionForm";
 import Search from "./components/search/Search";
 import Checkout from "./app/operations/checkout";
+import EventsViewer from "./components/EventsViewer";
 
 
 function App() {
@@ -50,7 +50,6 @@ function App() {
         <Route path="/search" element={<Layout children={<Search />} />} />
         <Route path="/buy/:resourceId" element={<Layout children={<SubscriptionForm />} />} />
         <Route path="/checkout" element={<Layout children={<Checkout />} />} />
-
       </Routes>
     </BrowserRouter>
   );
