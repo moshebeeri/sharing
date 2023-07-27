@@ -31,10 +31,10 @@ interface SubscriptionType {
 }
 
 class SubscriptionManager {
-  private userId: string | undefined;
+  private userId: string;
 
   constructor() {
-    this.userId = auth.currentUser?.uid;
+    this.userId = auth.currentUser?.uid || '';
   }
   public async getAllSubscriptions(subscriber: SubscriberType): Promise<ResourceType[]> {
     // Query for all subscriptions for this user
@@ -62,7 +62,7 @@ class SubscriptionManager {
       createdAt: Date.now(),
     };
     await setDoc(subscriptionRef, newSubscription);
-    return this.subscribedResources(subscriber);
+    return this.subscribedResources();
   }
 
   public async unsubscribe(subscriber: SubscriberType, resourceId: string): Promise<ResourceType[]> {
@@ -75,13 +75,13 @@ class SubscriptionManager {
     subscriptionSnapshot.forEach(async (doc) => {
       await deleteDoc(doc.ref);
     });
-    return this.subscribedResources(subscriber);
+    return this.subscribedResources();
   }
 
-  public async subscribedResources(subscriber: SubscriberType): Promise<ResourceType[]> {
+  public async subscribedResources(): Promise<ResourceType[]> {
     const subscriptionRef = query(
       collection(db, 'subscriptions'),
-      where('subscriberId', '==', subscriber.userId)
+      where('subscriberId', '==', this.userId)
     );
     const subscriptionSnapshot = await getDocs(subscriptionRef);
     const resources: ResourceType[] = [];
@@ -91,6 +91,16 @@ class SubscriptionManager {
       resources.push(resourceSnap.data() as ResourceType);
     });
     return resources;
+  }
+
+  public async subscribedAndPurchasedResources(): Promise<ResourceType[]> {
+    console.log('subscribedAndPurchasedResources for userId' + this.userId)
+    return new Promise( async () =>{
+     const subscribed = await this.subscribedResources()
+     const purchased = await this.purchasedResources()
+     const combined = purchased.concat(subscribed)
+     console.log(combined)
+    })
   }
 
   public async dueSubscription(subscriber: SubscriberType): Promise<ResourceType[]> {
@@ -159,22 +169,22 @@ class SubscriptionManager {
     return invites;
   }
 
-  public async purchase(userId: string, resourceId: string, pricingModel: PricingModel): Promise<ResourceType[]> {
+  public async purchase(resourceId: string, pricingModel: PricingModel): Promise<ResourceType[]> {
     const purchaseRef = doc(collection(db, 'purchased'));
     const newPurchase = {
-      userId: userId,
+      userId: this.userId,
       resourceId: resourceId,
       pricingModel: pricingModel,
       createdAt: Date.now(),
     };
     await setDoc(purchaseRef, newPurchase);
-    return this.purchasedResources(userId);
+    return this.purchasedResources();
   }
   
-  public async purchasedResources(userId: string): Promise<ResourceType[]> {
+  public async purchasedResources(): Promise<ResourceType[]> {
     const purchaseRef = query(
       collection(db, 'purchased'),
-      where('userId', '==', userId)
+      where('userId', '==', this.userId)
     )
     const purchaseSnapshot = await getDocs(purchaseRef);
     const resources: ResourceType[] = [];

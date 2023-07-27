@@ -101,12 +101,14 @@ const EventsViewer: React.FC = () => {
         userId: auth.currentUser?.uid || ''
 
       };
-      const fetchedResources = await subscriptionManager.subscribedResources(subscriber);
-      setResources(fetchedResources);
+      if(subscriber.userId){
+        const fetchedResources = await subscriptionManager.subscribedAndPurchasedResources();
+        setResources(fetchedResources);
+      }
     };
 
     fetchResources();
-  }, []);
+  }, [auth.currentUser?.uid]);
 
   // Fetch events
   useEffect(() => {

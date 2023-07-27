@@ -61,7 +61,6 @@ export const savePurchasedItems = async (userId: string, items: ResourceType[]) 
       resourceId: item.id,
       pricingModel: item.price,
     });
-    await sm.purchase(userId, item.id, item.price)
-
+    await sm.purchase(item.id, item.price)
   }
 };
