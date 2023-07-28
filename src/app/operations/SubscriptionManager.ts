@@ -62,7 +62,7 @@ class SubscriptionManager {
       createdAt: Date.now(),
     };
     await setDoc(subscriptionRef, newSubscription);
-    return this.subscribedResources();
+    return this.subscribedResources(subscriber.userId);
   }
 
   public async unsubscribe(subscriber: SubscriberType, resourceId: string): Promise<ResourceType[]> {
@@ -75,32 +75,39 @@ class SubscriptionManager {
     subscriptionSnapshot.forEach(async (doc) => {
       await deleteDoc(doc.ref);
     });
-    return this.subscribedResources();
+    return this.subscribedResources(subscriber.userId);
   }
 
-  public async subscribedResources(): Promise<ResourceType[]> {
+  public async subscribedResources(userId: string): Promise<ResourceType[]> {
     const subscriptionRef = query(
       collection(db, 'subscriptions'),
-      where('subscriberId', '==', this.userId)
+      where('subscriberId', '==', userId)
     );
     const subscriptionSnapshot = await getDocs(subscriptionRef);
-    const resources: ResourceType[] = [];
-    subscriptionSnapshot.forEach(async (resource) => {
+    const resourcesPromises: Promise<ResourceType>[] = [];
+
+    subscriptionSnapshot.forEach((resource) => {
       const resourceRef = doc(db, 'resources', resource.data().resourceId);
-      const resourceSnap = await getDoc(resourceRef);
-      resources.push(resourceSnap.data() as ResourceType);
+      const resourcePromise = getDoc(resourceRef).then(resourceSnap => resourceSnap.data() as ResourceType);
+      resourcesPromises.push(resourcePromise);
     });
+
+    const resources = await Promise.all(resourcesPromises);
+
     return resources;
   }
 
-  public async subscribedAndPurchasedResources(): Promise<ResourceType[]> {
-    console.log('subscribedAndPurchasedResources for userId' + this.userId)
-    return new Promise( async () =>{
-     const subscribed = await this.subscribedResources()
-     const purchased = await this.purchasedResources()
-     const combined = purchased.concat(subscribed)
-     console.log(combined)
-    })
+  public async subscribedAndPurchasedResources(userId: string): Promise<ResourceType[]> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const subscribed = await this.subscribedResources(userId);
+        const purchased = await this.purchasedResources(userId);
+        const combined = purchased.concat(subscribed);
+        resolve(combined)
+      } catch (error) {
+        reject(error)
+      }
+    });
   }
 
   public async dueSubscription(subscriber: SubscriberType): Promise<ResourceType[]> {
@@ -178,24 +185,29 @@ class SubscriptionManager {
       createdAt: Date.now(),
     };
     await setDoc(purchaseRef, newPurchase);
-    return this.purchasedResources();
+    return this.purchasedResources(this.userId);
   }
-  
-  public async purchasedResources(): Promise<ResourceType[]> {
+
+  public async purchasedResources(userId: string): Promise<ResourceType[]> {
+    console.log("purchasedResources userId=" + userId);
     const purchaseRef = query(
       collection(db, 'purchased'),
-      where('userId', '==', this.userId)
-    )
+      where('userId', '==', userId)
+    );
     const purchaseSnapshot = await getDocs(purchaseRef);
-    const resources: ResourceType[] = [];
-    purchaseSnapshot.forEach(async (resource) => {
+    const resourcesPromises: Promise<ResourceType>[] = [];
+
+    purchaseSnapshot.forEach((resource) => {
       const resourceRef = doc(db, 'resources', resource.data().resourceId);
-      const resourceSnap = await getDoc(resourceRef);
-      resources.push(resourceSnap.data() as ResourceType);
+      const resourcePromise = getDoc(resourceRef).then(resourceSnap => resourceSnap.data() as ResourceType);
+      resourcesPromises.push(resourcePromise);
     });
+
+    const resources = await Promise.all(resourcesPromises);
+
     return resources;
   }
-  
+
 
   public async uploadDocuments(documents: File[]) {
     //throw new Error('Method not implemented.');

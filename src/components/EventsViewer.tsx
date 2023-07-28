@@ -8,6 +8,7 @@ import { firebaseApp } from '../config/firebase';
 import { getFirestore } from 'firebase/firestore';
 import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent } from '@mui/material';
 import { Box } from '@mui/system';
+import { onAuthStateChanged } from "firebase/auth";
 
 import { EventActions, ProcessedEvent } from '@aldabil/react-scheduler/types';
 
@@ -49,6 +50,7 @@ const EventsViewer: React.FC = () => {
   const [events, setEvents] = useState<ResourcedEvent[]>([]);
   const [resources, setResources] = useState<ResourceType[]>([]);
   const [selectedResource, setSelectedResource] = useState<string>('');
+  const [userId, setUserId] = useState<string | null>(null);
 
   function getColorForResource(resourceId: string): string {
     function hashCode(s: string): number {
@@ -62,19 +64,19 @@ const EventsViewer: React.FC = () => {
     const index = Math.abs(hash) % event_colors.length;
     return event_colors[index];
   }
-  
+
   const onConfirm = async (event: ProcessedEvent, action: EventActions): Promise<ProcessedEvent> => {
     console.log(JSON.stringify({ event, action }, null, 2));
-  
+
     // Get the currently logged in user
     const user = getAuth(firebaseApp).currentUser;
-  
+
     // If user is not logged in, do nothing
     if (!user) {
       console.log('No user is logged in.');
       return event;
     }
-  
+
     // Save the event to Firestore
     try {
       const eventsCollection = collection(db, 'events');
@@ -90,25 +92,49 @@ const EventsViewer: React.FC = () => {
     } catch (error) {
       console.error('Error saving event to Firestore: ', error);
     }
-  
+
     return event;
   };
-  
-  // Fetch resources
+
+  // // Fetch resources
+  // useEffect(() => {
+  //   const fetchResources = async () => {
+  //     const subscriber: SubscriberType = {
+  //       userId: auth.currentUser?.uid || ''
+  //     };
+  //     if (subscriber.userId) {
+  //       console.log("subscriber.userId" + subscriber.userId)
+  //       const fetchedResources = await subscriptionManager.subscribedAndPurchasedResources();
+  //       setResources(fetchedResources);
+  //     } else {
+  //       console.log("NO subscriber.userId for you !!")
+  //     }
+  //   };
+
+  //   fetchResources();
+  // }, []);
+
   useEffect(() => {
-    const fetchResources = async () => {
-      const subscriber: SubscriberType = {
-        userId: auth.currentUser?.uid || ''
+    const unsubscribe = onAuthStateChanged(auth, user => {
+      setUserId(user?.uid || null);
+    });
 
-      };
-      if(subscriber.userId){
-        const fetchedResources = await subscriptionManager.subscribedAndPurchasedResources();
-        setResources(fetchedResources);
-      }
-    };
+    // Clean up subscription on unmount
+    return () => unsubscribe();
+  }, []);
 
-    fetchResources();
-  }, [auth.currentUser?.uid]);
+  useEffect(() => {
+    if (userId) {
+      subscriptionManager.subscribedAndPurchasedResources(userId)
+        .then(fetchedResources => {
+          setResources(fetchedResources);
+        })
+        .catch(error => {
+          console.error("EventsViewer Failed to fetch resources:", error);
+        });
+    }
+  }, [userId]);
+
 
   // Fetch events
   useEffect(() => {
@@ -129,7 +155,7 @@ const EventsViewer: React.FC = () => {
   const handleResourceChange = (selected: string) => {
     setSelectedResource(selected);
   };
-  
+
   return (
     <div>
       <FormControl variant="outlined" style={{ marginBottom: '20px', minWidth: 200 }}>
