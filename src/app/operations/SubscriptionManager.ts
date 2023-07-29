@@ -189,7 +189,6 @@ class SubscriptionManager {
   }
 
   public async purchasedResources(userId: string): Promise<ResourceType[]> {
-    console.log("purchasedResources userId=" + userId);
     const purchaseRef = query(
       collection(db, 'purchased'),
       where('userId', '==', userId)
@@ -199,7 +198,10 @@ class SubscriptionManager {
 
     purchaseSnapshot.forEach((resource) => {
       const resourceRef = doc(db, 'resources', resource.data().resourceId);
-      const resourcePromise = getDoc(resourceRef).then(resourceSnap => resourceSnap.data() as ResourceType);
+      const resourcePromise = getDoc(resourceRef).then(resourceSnap => ({
+        ...resourceSnap.data(),
+        id: resourceSnap.id
+      }) as ResourceType);
       resourcesPromises.push(resourcePromise);
     });
 
@@ -207,7 +209,6 @@ class SubscriptionManager {
 
     return resources;
   }
-
 
   public async uploadDocuments(documents: File[]) {
     //throw new Error('Method not implemented.');

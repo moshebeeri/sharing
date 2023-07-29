@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { query, collection, where, doc, getDocs, getDoc, setDoc } from 'firebase/firestore';
+import { query, collection, where, doc, getDocs, setDoc } from 'firebase/firestore';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { ResourceType } from './resource/ResourcesList';
 import { SubscriberType, SubscriptionManager } from '../app/operations/SubscriptionManager';
 import { getAuth } from '@firebase/auth';
 import { firebaseApp } from '../config/firebase';
 import { getFirestore } from 'firebase/firestore';
-import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent } from '@mui/material';
-import { Box } from '@mui/system';
+import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { onAuthStateChanged } from "firebase/auth";
-
+import { EVENTS } from "./events";
 import { EventActions, ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 const event_colors = [
@@ -47,10 +46,11 @@ interface ResourcedEvent extends ProcessedEvent {
 }
 
 const EventsViewer: React.FC = () => {
-  const [events, setEvents] = useState<ResourcedEvent[]>([]);
+  const [events, setEvents] = useState<ProcessedEvent[]>([]);
   const [resources, setResources] = useState<ResourceType[]>([]);
   const [selectedResource, setSelectedResource] = useState<string>('');
   const [userId, setUserId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   function getColorForResource(resourceId: string): string {
     function hashCode(s: string): number {
@@ -96,24 +96,7 @@ const EventsViewer: React.FC = () => {
     return event;
   };
 
-  // // Fetch resources
-  // useEffect(() => {
-  //   const fetchResources = async () => {
-  //     const subscriber: SubscriberType = {
-  //       userId: auth.currentUser?.uid || ''
-  //     };
-  //     if (subscriber.userId) {
-  //       console.log("subscriber.userId" + subscriber.userId)
-  //       const fetchedResources = await subscriptionManager.subscribedAndPurchasedResources();
-  //       setResources(fetchedResources);
-  //     } else {
-  //       console.log("NO subscriber.userId for you !!")
-  //     }
-  //   };
-
-  //   fetchResources();
-  // }, []);
-
+  // Fetch resources
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, user => {
       setUserId(user?.uid || null);
@@ -138,23 +121,46 @@ const EventsViewer: React.FC = () => {
 
   // Fetch events
   useEffect(() => {
+    setIsLoading(true);
     const fetchEvents = async () => {
-      if (!selectedResource) return; // If no resource is selected, don't fetch events
+      if (!userId) return;
+      const eventSnapshot = await getDocs(query(collection(db, 'events'), where('userId', '==', userId)));
 
-      const eventsRef = query(
-        collection(db, 'events'),
-        where('resourceId', '==', selectedResource)
-      );
-      const eventsSnapshot = await getDocs(eventsRef);
-      setEvents(eventsSnapshot.docs.map(doc => ({ ...doc.data()} as ResourcedEvent)));
+      // Transform the data from Firestore
+      const tempEvents: ProcessedEvent[] = eventSnapshot.docs.map((doc, index) => {
+        const data = doc.data();
+          return {
+            ...data,
+            event_id: index, // Use the array index as the event_id
+            start: new Date(data.start.seconds * 1000), // Transform start date
+            end: new Date(data.end.seconds * 1000), // Transform end date
+          } as ProcessedEvent;
+      });
+      // const tempEvents2 = [
+      //   {
+      //     event_id: 1,
+      //     title: "Event 1",
+      //     start: new Date(new Date(new Date().setHours(9)).setMinutes(0)),
+      //     end: new Date(new Date(new Date().setHours(10)).setMinutes(0)),
+      //     disabled: true,
+      //     admin_id: [1, 2, 3, 4]
+      //   }
+      // ];
+
+      console.log("tempEvents = " + JSON.stringify(tempEvents));
+      setEvents(tempEvents);
+      setIsLoading(false);
     };
-
     fetchEvents();
-  }, [selectedResource]);
+  }, [userId]);
 
   const handleResourceChange = (selected: string) => {
     setSelectedResource(selected);
-  };
+  }
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <div>
@@ -167,7 +173,7 @@ const EventsViewer: React.FC = () => {
           onChange={(e) => handleResourceChange(e.target.value)}
           label="Select a resource"
         >
-          <MenuItem value="">
+          <MenuItem value="" key="none">
             <em>None</em>
           </MenuItem>
           {resources.map(resource => (
@@ -177,8 +183,7 @@ const EventsViewer: React.FC = () => {
           ))}
         </Select>
       </FormControl>
-
-      <Scheduler events={events} onConfirm={onConfirm} />
+      <Scheduler events={events} onConfirm={onConfirm}/>
     </div>
   );
 };
