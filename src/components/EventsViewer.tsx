@@ -136,18 +136,6 @@ const EventsViewer: React.FC = () => {
             end: new Date(data.end.seconds * 1000), // Transform end date
           } as ProcessedEvent;
       });
-      // const tempEvents2 = [
-      //   {
-      //     event_id: 1,
-      //     title: "Event 1",
-      //     start: new Date(new Date(new Date().setHours(9)).setMinutes(0)),
-      //     end: new Date(new Date(new Date().setHours(10)).setMinutes(0)),
-      //     disabled: true,
-      //     admin_id: [1, 2, 3, 4]
-      //   }
-      // ];
-
-      console.log("tempEvents = " + JSON.stringify(tempEvents));
       setEvents(tempEvents);
       setIsLoading(false);
     };
@@ -160,6 +148,13 @@ const EventsViewer: React.FC = () => {
 
   if (isLoading) {
     return <div>Loading...</div>
+  }
+
+  function onDelete(eventId: string | number): Promise<string | number | void> {
+    return new Promise((resolve) => {
+      console.log("onDelete eventId = " + eventId);
+      resolve()
+    })
   }
 
   return (
@@ -183,7 +178,7 @@ const EventsViewer: React.FC = () => {
           ))}
         </Select>
       </FormControl>
-      <Scheduler events={events} onConfirm={onConfirm}/>
+      <Scheduler events={events} onConfirm={onConfirm} onDelete={onDelete}/>
     </div>
   );
 };
