@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { query, collection, where, doc, getDocs, setDoc } from 'firebase/firestore';
+import { query, collection, where, doc, getDocs, setDoc, deleteDoc } from 'firebase/firestore';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { ResourceType } from './resource/ResourcesList';
 import { SubscriberType, SubscriptionManager } from '../app/operations/SubscriptionManager';
@@ -46,7 +46,7 @@ interface ResourcedEvent extends ProcessedEvent {
 }
 
 const EventsViewer: React.FC = () => {
-  const [events, setEvents] = useState<ProcessedEvent[]>([]);
+  const [events, setEvents] = useState<ResourcedEvent[]>([]);
   const [resources, setResources] = useState<ResourceType[]>([]);
   const [selectedResource, setSelectedResource] = useState<string>('');
   const [userId, setUserId] = useState<string | null>(null);
@@ -65,29 +65,67 @@ const EventsViewer: React.FC = () => {
     return event_colors[index];
   }
 
+  // const onConfirm = async (event: ProcessedEvent, action: EventActions): Promise<ProcessedEvent> => {
+  //   console.log(JSON.stringify({ event, action }, null, 2));
+  //   // Get the currently logged in user
+  //   const user = getAuth(firebaseApp).currentUser;
+
+  //   // If user is not logged in, do nothing
+  //   if (!user) {
+  //     console.log('No user is logged in.');
+  //     return event;
+  //   }
+  //   // Save the event to Firestore
+  //   try {
+  //     const eventsCollection = collection(db, 'events');
+  //     const docRef = doc(eventsCollection);
+  //     event.color = getColorForResource(selectedResource);
+  //     await setDoc(docRef, {
+  //       ...event,
+  //       userId: user.uid,
+  //       resourceId: selectedResource,
+  //       created: Date.now(),
+  //     });
+  //     console.log('Event saved with ID: ', docRef.id);
+  //   } catch (error) {
+  //     console.error('Error saving event to Firestore: ', error);
+  //   }
+  //   return event;
+  // };
+
+  // Fetch resources
+
   const onConfirm = async (event: ProcessedEvent, action: EventActions): Promise<ProcessedEvent> => {
     console.log(JSON.stringify({ event, action }, null, 2));
 
-    // Get the currently logged in user
     const user = getAuth(firebaseApp).currentUser;
 
-    // If user is not logged in, do nothing
     if (!user) {
       console.log('No user is logged in.');
       return event;
     }
 
-    // Save the event to Firestore
+    const eventsCollection = collection(db, 'events');
+
+    let docRef;
+    if (action === "edit" && event.event_id) {
+      // If it's an edit action and the event has an id, use the existing id
+      docRef = doc(eventsCollection, event.event_id.toString());
+    } else {
+      // If it's an add action or the event doesn't have an id, create a new document
+      docRef = doc(eventsCollection);
+    }
+
+    event.color = getColorForResource(selectedResource);
+
     try {
-      const eventsCollection = collection(db, 'events');
-      const docRef = doc(eventsCollection);
-      event.color = getColorForResource(selectedResource);
       await setDoc(docRef, {
         ...event,
         userId: user.uid,
         resourceId: selectedResource,
         created: Date.now(),
       });
+
       console.log('Event saved with ID: ', docRef.id);
     } catch (error) {
       console.error('Error saving event to Firestore: ', error);
@@ -96,7 +134,7 @@ const EventsViewer: React.FC = () => {
     return event;
   };
 
-  // Fetch resources
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, user => {
       setUserId(user?.uid || null);
@@ -127,16 +165,16 @@ const EventsViewer: React.FC = () => {
       const eventSnapshot = await getDocs(query(collection(db, 'events'), where('userId', '==', userId)));
 
       // Transform the data from Firestore
-      const tempEvents: ProcessedEvent[] = eventSnapshot.docs.map((doc, index) => {
+      const userEvents: ResourcedEvent[] = eventSnapshot.docs.map((doc, index) => {
         const data = doc.data();
           return {
             ...data,
-            event_id: index, // Use the array index as the event_id
+            event_id: doc.id,
             start: new Date(data.start.seconds * 1000), // Transform start date
             end: new Date(data.end.seconds * 1000), // Transform end date
-          } as ProcessedEvent;
+          } as ResourcedEvent;
       });
-      setEvents(tempEvents);
+      setEvents(userEvents);
       setIsLoading(false);
     };
     fetchEvents();
@@ -150,12 +188,27 @@ const EventsViewer: React.FC = () => {
     return <div>Loading...</div>
   }
 
-  function onDelete(eventId: string | number): Promise<string | number | void> {
-    return new Promise((resolve) => {
-      console.log("onDelete eventId = " + eventId);
-      resolve()
-    })
-  }
+  const onDelete = async (id: string | number): Promise<string | number> => {
+    const user = getAuth(firebaseApp).currentUser;
+
+    if (!user) {
+      console.log('No user is logged in.');
+      return id;
+    }
+
+    const eventsCollection = collection(db, 'events');
+    const docRef = doc(eventsCollection, id.toString());
+
+    try {
+      await deleteDoc(docRef);
+      console.log('Event deleted with ID: ', id);
+    } catch (error) {
+      console.error('Error deleting event from Firestore: ', error);
+    }
+
+    return id;
+  };
+
 
   return (
     <div>
