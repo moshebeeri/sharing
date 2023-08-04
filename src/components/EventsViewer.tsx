@@ -163,11 +163,14 @@ const EventsViewer: React.FC = () => {
       subscriptionManager.subscribedAndPurchasedResources(userId)
         .then(fetchedResources => {
           setResources(fetchedResources);
+          console.log(`fetchedResources.length=${fetchedResources.length}`)
           if (fetchedResources.length === 1) {
+            console.log(`fesetSelectedResource(${fetchedResources[0].id})`)
             setSelectedResource(fetchedResources[0].id);
           } else {
             const lastResource = localStorage.getItem('lastResource');
-            if (lastResource) setSelectedResource(lastResource);
+            if (lastResource)
+              setSelectedResource(lastResource);
           }
         })
         .catch(error => {
@@ -205,9 +208,6 @@ const EventsViewer: React.FC = () => {
     localStorage.setItem('lastResource', selected);
   }
 
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
 
   const onDelete = async (id: string | number): Promise<string | number> => {
     const user = getAuth(firebaseApp).currentUser;
@@ -230,6 +230,9 @@ const EventsViewer: React.FC = () => {
     return id;
   };
 
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <div>

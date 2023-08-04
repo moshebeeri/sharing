@@ -14,6 +14,7 @@ import SubscriptionForm from "./app/operations/SubscriptionForm";
 import Search from "./components/search/Search";
 import Checkout from "./app/operations/checkout";
 import EventsViewer from "./components/EventsViewer";
+import UserResourcesScheduleView from "./components/UserResourcesScheduleView";
 
 
 function App() {
@@ -50,6 +51,8 @@ function App() {
         <Route path="/search" element={<Layout children={<Search />} />} />
         <Route path="/buy/:resourceId" element={<Layout children={<SubscriptionForm />} />} />
         <Route path="/checkout" element={<Layout children={<Checkout />} />} />
+        <Route path="/ursv" element={<Layout children={<UserResourcesScheduleView />} />} />
+
       </Routes>
     </BrowserRouter>
   );
