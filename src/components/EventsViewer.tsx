@@ -51,6 +51,7 @@ const EventsViewer: React.FC = () => {
   const [selectedResource, setSelectedResource] = useState<string>('');
   const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
   function getColorForResource(resourceId: string): string {
     function hashCode(s: string): number {
@@ -106,13 +107,14 @@ const EventsViewer: React.FC = () => {
     const user = getAuth(firebaseApp).currentUser;
 
     if (!user) {
-      console.log('No user is logged in.');
+      alert('No user is logged in.');
       return event;
     }
 
     // Check if event is in the past
     if (new Date(event.start).getTime() < Date.now()) {
-      console.log('Event is in the past and cannot be added.');
+      alert('Event is in the past and cannot be added.');
+      setLastUpdated(new Date());
       return event;
     }
 
@@ -138,6 +140,7 @@ const EventsViewer: React.FC = () => {
       });
 
       console.log('Event saved with ID: ', docRef.id);
+      setLastUpdated(new Date());
     } catch (error) {
       console.error('Error saving event to Firestore: ', error);
     }
@@ -195,7 +198,7 @@ const EventsViewer: React.FC = () => {
       setIsLoading(false);
     };
     fetchEvents();
-  }, [userId]);
+  }, [userId, lastUpdated]);
 
   const handleResourceChange = (selected: string) => {
     setSelectedResource(selected);
