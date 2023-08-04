@@ -21,7 +21,7 @@ const event_colors = [
   '#4b0082', // indigo
   '#ee82ee', // violet
   '#a52a2a', // brown
-  '#000000', // black
+  '#00008b', // dark blue
   '#808080', // gray
   '#008080', // teal
   '#000080', // navy
@@ -98,10 +98,21 @@ const EventsViewer: React.FC = () => {
   const onConfirm = async (event: ProcessedEvent, action: EventActions): Promise<ProcessedEvent> => {
     console.log(JSON.stringify({ event, action }, null, 2));
 
+    if (action === "create" && !selectedResource) {
+      alert('Please select a resource before adding an event.');
+      return event;
+    }
+
     const user = getAuth(firebaseApp).currentUser;
 
     if (!user) {
       console.log('No user is logged in.');
+      return event;
+    }
+
+    // Check if event is in the past
+    if (new Date(event.start).getTime() < Date.now()) {
+      console.log('Event is in the past and cannot be added.');
       return event;
     }
 
@@ -149,6 +160,12 @@ const EventsViewer: React.FC = () => {
       subscriptionManager.subscribedAndPurchasedResources(userId)
         .then(fetchedResources => {
           setResources(fetchedResources);
+          if (fetchedResources.length === 1) {
+            setSelectedResource(fetchedResources[0].id);
+          } else {
+            const lastResource = localStorage.getItem('lastResource');
+            if (lastResource) setSelectedResource(lastResource);
+          }
         })
         .catch(error => {
           console.error("EventsViewer Failed to fetch resources:", error);
@@ -182,6 +199,7 @@ const EventsViewer: React.FC = () => {
 
   const handleResourceChange = (selected: string) => {
     setSelectedResource(selected);
+    localStorage.setItem('lastResource', selected);
   }
 
   if (isLoading) {
@@ -221,9 +239,6 @@ const EventsViewer: React.FC = () => {
           onChange={(e) => handleResourceChange(e.target.value)}
           label="Select a resource"
         >
-          <MenuItem value="" key="none">
-            <em>None</em>
-          </MenuItem>
           {resources.map(resource => (
             <MenuItem value={resource.id} key={resource.id}>
               {resource.title}
@@ -231,7 +246,15 @@ const EventsViewer: React.FC = () => {
           ))}
         </Select>
       </FormControl>
-      <Scheduler events={events} onConfirm={onConfirm} onDelete={onDelete}/>
+      <Scheduler events={events} onConfirm={onConfirm} onDelete={onDelete} />
+      <div>
+        {resources.map(resource => (
+          <div key={resource.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+            <div style={{ width: '20px', height: '20px', backgroundColor: getColorForResource(resource.id), marginRight: '10px' }} />
+            <div>{resource.title}</div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
