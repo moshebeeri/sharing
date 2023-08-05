@@ -63,9 +63,22 @@ function UserResourcesScheduleView() {
 
   useEffect(() => {
     setIsLoading(true);
+
     const fetchEvents = async () => {
+      const currentTime = new Date();
       if (!userId) return;
-      const eventSnapshot = await getDocs(query(collection(db, 'events'), where('userId', '==', userId)));
+      const resourceIds = resources.map((resource) => resource.id);  // Extract the ids
+      if(resourceIds.length === 0) {
+        console.log('User does not own any resources.');
+        setIsLoading(false);
+        return;
+      }
+
+      const eventSnapshot = await getDocs(query(
+        collection(db, 'events'),
+        where('resourceId', 'in', resourceIds),  // Match against array of resource IDs
+        where('start', '>=', currentTime)
+      ));
 
       // Transform the data from Firestore
       const userEvents: ResourcedEvent[] = eventSnapshot.docs.map((doc) => {
@@ -81,7 +94,7 @@ function UserResourcesScheduleView() {
       setIsLoading(false);
     };
     fetchEvents();
-  }, [userId]);
+  }, [resources, userId]);
 
   if (isLoading) {
     return <div>Loading...</div>
