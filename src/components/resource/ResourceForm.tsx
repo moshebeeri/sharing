@@ -216,7 +216,8 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
       hours: { min: 1, max: 23 },
       daysOfMonth: { min: 1, max: 31 },
       months: { min: 1, max: 12 },
-      daysOfWeek: { min: 1, max: 7 }
+      daysOfWeek: { min: 1, max: 7 },
+      weeks: {min: 1, max: 52 }
     }
 
     return minMaxMap[selectedField] || { min: 1, max: 100 }
@@ -362,7 +363,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
       Array.from(e.target.files).filter(file => !file.name.startsWith('.'))
     )
   }
-  const fields = ['hours', 'daysOfMonth', 'months', 'daysOfWeek']
+  const fields = ['Hours', 'Days Of Month', 'Weeks', 'Months', 'Days Of Week']
 
   return (
     <Container>

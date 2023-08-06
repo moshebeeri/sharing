@@ -28,6 +28,7 @@ type PatternType = {
   minutes: string
   hours: string
   daysOfMonth: string
+  weeks: string
   months: string
   daysOfWeek: string
 }
