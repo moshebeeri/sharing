@@ -5,7 +5,7 @@ import { TextField, Grid, Typography, MenuItem } from '@mui/material';
 type PricingModel = {
   price: number;
   period: 'month' | 'year' | '2 years' | '3 years' | '4 years' | '5 years';
-  billingFrequency: 'month' | 'year';
+  billingFrequency: 'monthly' | 'yearly';
   currency: 'USD' | 'EUR' | 'CAD' | 'MXN';
 };
 
@@ -107,7 +107,7 @@ const PriceTag: React.FC<PriceTagProps> = ({
           select
           value={billingFrequency}
           onChange={(e) => {
-            setBillingFrequency(e.target.value as 'month' | 'year');
+            setBillingFrequency(e.target.value as 'monthly' | 'yearly');
             handleChange();
           }}
           fullWidth

@@ -256,9 +256,9 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
         <CardContent>
           {renderFields('Minutes', 'minutes', 0, 59)}
           {renderFields('Hours', 'hours', 0, 23)}
-          {renderFields('Days of Month', 'daysOfMonth', 1, 31)}
+          {renderFields('Days Of Month', 'daysOfMonth', 1, 31)}
           {renderFields('Months', 'months', 1, 12)}
-          {renderFields('Days of Week', 'daysOfWeek', undefined, undefined, [
+          {renderFields('Days Of Week', 'daysOfWeek', undefined, undefined, [
             'Sunday',
             'Monday',
             'Tuesday',

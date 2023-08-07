@@ -71,7 +71,7 @@ const StyledCard = styled(Card)`
 const defaultPrice: PricingModel = {
   price: 0,
   period: 'year',
-  billingFrequency: 'month',
+  billingFrequency: 'monthly',
   currency: 'USD'
 };
 
@@ -87,7 +87,6 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   const [description, setDescription] = useState(resource?.description ?? '')
 
   const [price, setPrice] = useState<PricingModel>(resource?.price ?? defaultPrice);
-  const [currency, setCurrency] = useState<'USD' | 'EUR' | 'CAD' | 'MXN'>('USD')
 
   const [availabilityPatterns, setAvailabilityPatterns] = useState<
     AvailabilityPattern[]
@@ -97,7 +96,6 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     ) ?? []
   )
   const [currentPattern, setCurrentPattern] = useState<string>('')
-  const [imageFiles, setImageFiles] = useState<File[]>([])
   const [selectedImages, setSelectedImages] = useState<
     { file: File; url: string }[]
   >([])
@@ -125,7 +123,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   const [addNewResourceGroup, setAddNewResourceGroup] = useState(false)
   const [addNewResourceCategory, setAddNewResourceCategory] = useState(false)
 
-  const [formValid, setFormValid] = useState(false)
+  //const [formValid, setFormValid] = useState(false)
   const [addressData, setAddressData] = useState({
     address: resource?.address ?? '',
     lat: resource?.lat ?? 0,
@@ -279,17 +277,17 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
     }
     fetchResourceGroupNames()
   }, [])
-  useEffect(() => {
-    setFormValid(
-      !!title &&
-        !!description &&
-        !!price &&
-        !!(availabilityPatterns.length > 0) &&
-        !!addressData.address &&
-        !!addressData.lat &&
-        !!addressData.lng
-    )
-  }, [title, description, price, availabilityPatterns, addressData])
+  // // useEffect(() => {
+  // //   setFormValid(
+  // //     !!title &&
+  // //       !!description &&
+  // //       !!price &&
+  // //       !!(availabilityPatterns.length > 0) &&
+  // //       !!addressData.address &&
+  // //       !!addressData.lat &&
+  // //       !!addressData.lng
+  // //   )
+  // // }, [title, description, price, availabilityPatterns, addressData])
 
   useEffect(() => {
     const totalSize = videoFiles.reduce((acc, video) => acc + video.size, 0)
@@ -363,7 +361,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
       Array.from(e.target.files).filter(file => !file.name.startsWith('.'))
     )
   }
-  const fields = ['Hours', 'Days Of Month', 'Weeks', 'Months', 'Days Of Week']
+  const fields = ['hours', 'daysOfMonth', 'weeks', 'months', 'daysOfWeek']
 
   return (
     <Container>
