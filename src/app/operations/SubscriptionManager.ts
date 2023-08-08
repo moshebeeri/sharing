@@ -1,5 +1,4 @@
 import {
-  DocumentReference,
   collection,
   query,
   getDocs,
@@ -21,13 +20,6 @@ const auth = getAuth(firebaseApp);
 
 interface SubscriberType {
   userId: string;
-}
-
-interface SubscriptionType {
-  subscriberId: DocumentReference,
-  resourceId: DocumentReference,
-  createdAt: Date,
-  dueDate: Date,
 }
 
 class SubscriptionManager {

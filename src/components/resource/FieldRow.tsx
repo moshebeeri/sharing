@@ -1,5 +1,5 @@
 import React from 'react'
-import { Grid, Typography, FormControlLabel, Checkbox, Button } from '@mui/material'
+import { Grid, Typography, Button } from '@mui/material'
 import MinMaxEnumInput from './MinMaxEnumInput'
 
 interface FieldRowProps {

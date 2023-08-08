@@ -4,11 +4,6 @@ import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { saveCartItems, loadCartItems } from '../../app/operations/cartStorage';
 import { ResourceType } from '../../components/resource/ResourcesList';
 
-// Replace this with your actual RootState
-interface RootState {
-  cart: CartState;
-}
-
 // Add to cart action
 export const addCartItem = createAsyncThunk<void, { userId: string; item: ResourceType }, { rejectValue: unknown }>(
   'cart/addToCart',
@@ -17,7 +12,6 @@ export const addCartItem = createAsyncThunk<void, { userId: string; item: Resour
     if (item.createdAt) {
       item.createdAt = new Date();
     }
-    console.log("======!!> addCartItem " + JSON.stringify(item))
     thunkAPI.dispatch(actions.addToCart(item));
 
     // Get the updated cart items

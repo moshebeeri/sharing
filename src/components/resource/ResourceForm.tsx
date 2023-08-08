@@ -46,7 +46,7 @@ import { AvailabilityPatternForm, PatternType } from './AvailabilityPatternForm'
 import { useAppSelector } from '../../app/hooks'
 import Alert from '@mui/material/Alert'
 import { AddressCollector } from '../location/AddressCollector'
-import { styled, Theme } from '@mui/system'
+import { styled } from '@mui/system'
 import { AvailabilityPattern } from './AvailabilityPattern'
 import {PriceTag, PricingModel } from '../xmui/PriceTag';
 import { ResourceType } from './ResourcesList'
@@ -99,7 +99,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   const [selectedImages, setSelectedImages] = useState<
     { file: File; url: string }[]
   >([])
-  const [imageUrls, setImageUrls] = useState<string[]>(resource?.images ?? [])
+  const [imageUrls] = useState<string[]>(resource?.images ?? [])
   const [primaryImageIndex, setPrimaryImageIndex] = useState(
     resource?.primaryImageIndex ?? 0
   )
@@ -119,7 +119,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
   const [resourceCategoryName, setResourceCategoryName] = useState(
     resource?.resourceCategoryName ?? ''
   )
-  const [resourceCategoryNames, setCategoryGroupNames] = useState<string[]>([])
+  const [resourceCategoryNames] = useState<string[]>([])
   const [addNewResourceGroup, setAddNewResourceGroup] = useState(false)
   const [addNewResourceCategory, setAddNewResourceCategory] = useState(false)
 
@@ -214,8 +214,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
       hours: { min: 1, max: 23 },
       daysOfMonth: { min: 1, max: 31 },
       months: { min: 1, max: 12 },
-      daysOfWeek: { min: 1, max: 7 },
-      weeks: {min: 1, max: 52 }
+      daysOfWeek: { min: 1, max: 7 }
     }
 
     return minMaxMap[selectedField] || { min: 1, max: 100 }
@@ -361,7 +360,15 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
       Array.from(e.target.files).filter(file => !file.name.startsWith('.'))
     )
   }
-  const fields = ['hours', 'daysOfMonth', 'weeks', 'months', 'daysOfWeek']
+
+  type FieldKey = 'hours' | 'daysOfMonth' | 'months' | 'daysOfWeek';
+  const fields: FieldKey[] = ['hours', 'daysOfMonth', 'months', 'daysOfWeek'];
+  const fields2names = {
+    'hours': 'Hours',
+    'daysOfMonth': 'Days Of Month',
+    'months': 'Month',
+    'daysOfWeek': 'Days Of Week'
+  }
 
   return (
     <Container>
@@ -621,7 +628,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
                     >
                       {fields?.map(field => (
                         <MenuItem key={field} value={field}>
-                          {field}
+                          {fields2names[field as FieldKey]}
                         </MenuItem>
                       ))}
                     </Select>
@@ -665,7 +672,7 @@ const ResourceForm: React.FC<ResourceFormProps> = ({
                 >
                   <img
                     src={image.url}
-                    alt={`Image ${index + 1}`}
+                    alt={`${index + 1}`}
                     width='200'
                     height='200'
                     className='me-2'

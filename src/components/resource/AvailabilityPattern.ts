@@ -29,7 +29,7 @@ class AvailabilityPattern {
 
   parseField(field: string, minValue: number, maxValue: number): Field[] {
     const ranges = field.split(",").map((range) => {
-      const [from, to, step] = range.split(/[-\/]/).map(Number);
+      const [from, to, step] = range.split(/[-/]/).map(Number);
 
       return {
         from: isNaN(from) ? minValue : from,

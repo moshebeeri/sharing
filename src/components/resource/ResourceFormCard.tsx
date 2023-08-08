@@ -28,7 +28,7 @@ const ResourceFormCard: React.FC<ResourceCardProps> = ({
   onEdit,
   onDelete,
 }) => {
-  const { title, description, price, availability, images, primaryImageIndex } =
+  const { title, description, availability, images, primaryImageIndex } =
     resource
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);

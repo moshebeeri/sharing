@@ -1,6 +1,6 @@
 // PriceTag.tsx
 import React, { useState } from 'react';
-import { TextField, Grid, Typography, MenuItem } from '@mui/material';
+import { TextField, Grid, MenuItem } from '@mui/material';
 
 type PricingModel = {
   price: number;

@@ -1,7 +1,5 @@
 import {
   Form,
-  InputGroup,
-  FormLabel,
   FormGroup,
   FormText
 } from 'react-bootstrap'
@@ -16,11 +14,9 @@ import { SubscriptionManager } from './SubscriptionManager'
 import { ResourceCard } from '../../components/resource/ResourceCard'
 import { ResourceType } from '../../components/resource/ResourcesList'
 import { Invite } from '../../components/types'
-import { Link, useNavigate } from "react-router-dom";
-import { actions as cartActions } from '../../features/cart/cartSlice';
+import { useNavigate } from "react-router-dom";
 
-import { useDispatch } from 'react-redux';
-import { addResourceToCart, loadCartItems, saveCartItems } from './cartStorage'
+import { addResourceToCart } from './cartStorage'
 
 const SubscriptionForm = () => {
   const { resourceId } = useParams<{ resourceId: string }>()
@@ -125,7 +121,7 @@ const SubscriptionForm = () => {
     }
 
     // Handle document upload
-    const uploadedDocuments = await subscriptionManager.uploadDocuments(documents)
+    await subscriptionManager.uploadDocuments(documents)
 
     // Subscribe the user to the resource
     console.log('Subscribing user to resource ' + resource)

@@ -1,4 +1,3 @@
-import { firebaseApp } from "./config/firebase";
 import React, { useState, useEffect, ReactNode } from 'react';
 import { getAuth, onAuthStateChanged, signOut, User } from 'firebase/auth';
 import AppBar from '@mui/material/AppBar';
@@ -17,8 +16,6 @@ import AdbIcon from '@mui/icons-material/Adb';
 import { styled } from '@mui/system';
 import { useSelector } from "react-redux";
 import { RootState } from "./app/store";
-
-const auth = getAuth(firebaseApp)
 
 const ShraitImg = styled('img')({
   height: '70px',
@@ -97,10 +94,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     } else {
       return '';
     }
-  }
-
-  const showLogout = () => {
-    return !isLoading && user;
   }
 
   return (

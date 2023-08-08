@@ -1,9 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { Grid } from '@mui/material'
 import { ResourceType } from '../resource/ResourcesList'
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
-import { firebaseApp } from '../../config/firebase'
-import { getFirestore } from '@firebase/firestore'
 import { ResourceCard } from '../resource/ResourceCard'
 
 

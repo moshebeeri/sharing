@@ -2,13 +2,8 @@ import {
   Container,
   Typography,
   Grid,
-  Card,
-  CardContent,
-  CardMedia,
-  Chip,
   Button,
   Box,
-  Paper,
   IconButton
 } from '@mui/material'
 import ArrowBackIos from '@mui/icons-material/ArrowBackIos'
@@ -18,14 +13,14 @@ import { doc, getDoc } from 'firebase/firestore'
 import { ResourceType } from '../resource/ResourcesList' // Update the path as needed
 import { getFirestore } from '@firebase/firestore'
 import { firebaseApp } from '../../config/firebase'
-import { PriceTag, PricingModel } from '../xmui/PriceTag'
+import { PriceTag } from '../xmui/PriceTag'
 import { Rating } from '../xmui/Rating'
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api'
 import { Carousel } from 'react-responsive-carousel'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
 import Geocode from 'react-geocode'
 import { CSSProperties, useEffect, useState } from 'react'
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const db = getFirestore(firebaseApp)
 const googleMapsApiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ''
@@ -49,8 +44,6 @@ const ResourceView: React.FC = () => {
   const { resourceId } = useParams<ResourceViewParams>()
   const [resource, setResource] = useState<ResourceType>()
   const navigate = useNavigate();
-
-  const primaryImageUrl = resource?.images?.[resource?.primaryImageIndex]
 
   function reorderImages(images: string[], primaryIndex: number) {
     if (primaryIndex === 0) {
@@ -160,7 +153,7 @@ const ResourceView: React.FC = () => {
               <img
                 key={index}
                 src={image}
-                alt={`Resource image ${index + 1}`}
+                alt={`Resource ${index + 1}`}
                 style={{
                   width: '100%',
                   maxHeight: '600px',

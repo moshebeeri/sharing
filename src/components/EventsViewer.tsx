@@ -2,13 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { query, collection, where, doc, getDocs, setDoc, deleteDoc } from 'firebase/firestore';
 import { Scheduler } from '@aldabil/react-scheduler';
 import { ResourceType } from './resource/ResourcesList';
-import { SubscriberType, SubscriptionManager } from '../app/operations/SubscriptionManager';
+import { SubscriptionManager } from '../app/operations/SubscriptionManager';
 import { getAuth } from '@firebase/auth';
 import { firebaseApp } from '../config/firebase';
 import { getFirestore } from 'firebase/firestore';
 import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { onAuthStateChanged } from "firebase/auth";
-import { EVENTS } from "./events";
 import { EventActions, ProcessedEvent } from '@aldabil/react-scheduler/types';
 
 const event_colors = [

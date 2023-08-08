@@ -16,8 +16,6 @@ import MapIcon from '@mui/icons-material/Map'
 import SearchIcon from '@mui/icons-material/Search'
 import CloseIcon from '@mui/icons-material/Close'
 import { styled } from '@mui/system'
-// import { Circle } from '@react-google-maps/api';
-import { useNavigate } from "react-router-dom";
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
 import { firebaseApp } from '../../config/firebase'
 import { getFirestore } from '@firebase/firestore'
@@ -47,12 +45,6 @@ const CustomCard = styled(Card)({
   '& .card-body': {
     minHeight: '70px' // Ensures all sections have the same minimum height
   }
-})
-
-const RadiusWrapper = styled('div')({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '10px' // Adds space between label and input
 })
 
 export type SearchType = {
@@ -107,9 +99,6 @@ export default function SearchBox({handleSubmit, embedded, search, setSearch}: S
     return hasMetricLocale
   }
 
-  const unit = useMetric() ? 'km' : 'mile'
-  const navigate = useNavigate();
-
   const handleClickOpen = () => {
     setOpen(true)
   }
@@ -135,15 +124,6 @@ export default function SearchBox({handleSubmit, embedded, search, setSearch}: S
     const { name, value } = event.target
     setSearch(prevState => ({ ...prevState, [name]: value }))
   }
-
-  // const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-  //   event.preventDefault()
-  //   if (embedded) {
-  //     //navigate(`/search`)
-  //     history.push('/search', { search });
-  //   } else {
-  //   }
-  // }
 
   return (
     <Container>

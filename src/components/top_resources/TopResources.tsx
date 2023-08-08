@@ -4,7 +4,6 @@ import { Grid, Typography, useMediaQuery, useTheme } from '@mui/material'
 import TopResourceCard from './TopResourceCard'
 import { getFirestore } from '@firebase/firestore'
 import { firebaseApp } from '../../config/firebase'
-import { ResourceCard } from '../resource/ResourceCard'
 
 const db = getFirestore(firebaseApp)
 

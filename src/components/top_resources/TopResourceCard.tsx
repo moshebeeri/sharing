@@ -3,7 +3,7 @@ import { Card, CardContent, IconButton, Typography } from '@mui/material'
 import { PriceTag, PricingModel } from '../xmui/PriceTag'
 import { Carousel } from 'react-responsive-carousel'
 import 'react-responsive-carousel/lib/styles/carousel.min.css' // requires a loader
-import { height, styled } from '@mui/system'
+import { styled } from '@mui/system'
 import ArrowBackIos from '@mui/icons-material/ArrowBackIos'
 import ArrowForwardIos from '@mui/icons-material/ArrowForwardIos'
 import { Link } from 'react-router-dom'
@@ -55,7 +55,7 @@ const arrowStyles: CSSProperties = {
 }
 
 const TopResourceCard: React.FC<ResourceCardProps> = ({ resource }) => {
-  const { title, description, price, images, primaryImageIndex } = resource
+  const { title, images, primaryImageIndex } = resource
   const primaryImageUrl = images?.[primaryImageIndex]
   const [liked, setLiked] = React.useState(false)
 

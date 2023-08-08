@@ -10,25 +10,14 @@ import {
   DialogActions,
   Button,
   Typography,
-  TextField,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Grid,
-  Box,
-  FormLabel
 } from '@mui/material'
 import InfoIcon from '@mui/icons-material/Info'
 import FieldRow from './FieldRow'
-import { useAppDispatch } from '../../app/hooks'
-import { setAvailabilityPatternError } from '../../features/availabilityPattern/availabilityPatternSlice'
 
 type PatternType = {
   minutes: string
   hours: string
   daysOfMonth: string
-  weeks: string
   months: string
   daysOfWeek: string
 }
@@ -61,7 +50,6 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
   showInterval = false,
   showReset = false
 }) => {
-  const dispatch = useAppDispatch()
 
   const [open, setOpen] = useState(false)
   const [pattern, setPattern] = useState({
@@ -109,7 +97,7 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
 
       onChange(Object.values(updatedPattern).join(' '))
     }
-  }, [fields])
+  }, [fields, onChange, pattern])
 
   useEffect(() => {
     onChange(Object.values(pattern).join(' '))
@@ -125,10 +113,6 @@ const AvailabilityPatternForm: React.FC<AvailabilityPatternFormProps> = ({
 
   const handleChange = (updatedValue: string, name: keyof typeof pattern) => {
     setPattern({ ...pattern, [name]: updatedValue })
-  }
-
-  const handleAddPattern = () => {
-    onAddPattern(Object.values({ ...pattern }).join(' '))
   }
 
   const handleFieldChange = (
